@@ -29,7 +29,7 @@ class Pokemones_Region : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val regionName = intent.getStringExtra("REGION_NAME") ?: "" // Recuperar la región
+        val regionName = intent.getStringExtra("REGION_NAME")?.capitalizeFirstLetter() ?: "kanto" // Recuperar la región
 
         setContent {
             PokedexTheme {
