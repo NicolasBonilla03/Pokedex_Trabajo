@@ -28,8 +28,25 @@ import com.example.pokedex.services.models.Region
 import com.example.pokedex.ui.theme.PokedexTheme
 
 class MainActivity : ComponentActivity() {
+
+    private val regions = listOf(
+        RegionItem("Kanto", "https://pokeapi.co/api/v2/pokedex/2/"),
+        RegionItem("Johto", "https://pokeapi.co/api/v2/pokedex/3/"),
+        RegionItem("Hoenn", "https://pokeapi.co/api/v2/pokedex/4/"),
+        RegionItem("Sinnoh", "https://pokeapi.co/api/v2/pokedex/5/"),
+        RegionItem("Unova", "https://pokeapi.co/api/v2/pokedex/8/"),
+        RegionItem("Kalos", "https://pokeapi.co/api/v2/pokedex/12/"),
+        RegionItem("Alola", "https://pokeapi.co/api/v2/pokedex/16/"),
+        RegionItem("Galar", "https://pokeapi.co/api/v2/pokedex/galar/"),
+        RegionItem("Hisui", "https://pokeapi.co/api/v2/pokedex/hisui/"),
+        RegionItem("Paldea", "https://pokeapi.co/api/v2/pokedex/paldea/"),
+
+        )
+
+    data class RegionItem(val name: String, val url: String)
+
     private val pokemonDriverAdapter by lazy { PokemonDriverAdapter() }
-    //val pokemonViewModel by lazy { PokemonViewModel(this) }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
