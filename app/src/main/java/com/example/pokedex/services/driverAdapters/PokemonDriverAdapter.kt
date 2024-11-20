@@ -1,5 +1,6 @@
 package com.example.pokedex.services.driverAdapters
 import com.example.pokedex.services.controllers.RegionService
+import com.example.pokedex.services.models.PokemonEntry
 import com.example.pokedex.services.models.Region
 import com.example.pokedex.services.models.RegionResponse
 import kotlinx.coroutines.runBlocking
@@ -20,4 +21,20 @@ class PokemonDriverAdapter {
             }
         )
     }
+    fun PokemonsByRegion(
+        region: String,
+        loadData: (list: List<PokemonEntry>) -> Unit,
+        errorData: () -> Unit
+    ) {
+        this.service.getPokemonsByRegion(
+            region = region,
+            success = {
+                loadData(it)
+            },
+            error = {
+                errorData()
+            }
+        )
+    }
+
 }
