@@ -65,21 +65,26 @@ fun PokemonList(pokemonEntries: List<PokemonEntry>, modifier: Modifier = Modifie
     if (pokemonEntries.isEmpty()) {
         Text(text = "No hay Pokémon disponibles en esta región.")
         return
-    }else{
-    LazyColumn(modifier = modifier) {
-        items(
-            items = pokemonEntries,
-            key = { it.entry_number }
-        ) {
-            Column {
-                Row {
-                    Text(text = "ID: ${it.entry_number} ")
-                    Text(text = "Nombre: ${it.pokemon_species.name}")
+    } else {
+        LazyColumn(modifier = modifier) {
+            items(
+                items = pokemonEntries,
+                key = { it.entry_number }
+            ) { pokemon ->
+                Column {
+                    Row {
+                        // Extraer el número del Pokémon desde la URL
+                        val pokemonNumber = extractPokemonNumber(pokemon.pokemon_species.url)
+                        Text(text = "ID: $pokemonNumber ")
+                        Text(text = "Nombre: ${pokemon.pokemon_species.name}")
+                    }
                 }
             }
         }
     }
-    }
+}
+fun extractPokemonNumber(url: String): Int {
+    return url.trimEnd('/').split('/').last().toInt()
 }
 
 @Preview(showBackground = true)
