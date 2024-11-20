@@ -39,8 +39,11 @@ class MainActivity : ComponentActivity() {
             var loadProducts by remember { mutableStateOf(false) }
 
             if (!loadProducts) {
+
                 this.pokemonDriverAdapter.allRegions(
                     loadData = { regionsList ->
+                        println("okkk")
+                        println(regionsList)
                         regions = regionsList
                         loadProducts = true
                     },
@@ -49,6 +52,8 @@ class MainActivity : ComponentActivity() {
                         loadProducts = true
                     }
                 )
+
+
             }
             PokedexScreen(regions = regions)
         }

@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Pokedex</string>
-    <string name="title">Regiones</string>
+    <string name="title">Region: </string>
 
 </resources>

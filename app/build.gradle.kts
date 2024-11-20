@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.pokedex"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.pokedex"
@@ -67,6 +67,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation (libs.retrofit)
-    implementation (libs.converter.name)
     implementation (libs.converter.gson)
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
 }
