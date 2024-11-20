@@ -35,7 +35,9 @@ class MainActivity : ComponentActivity() {
         Region("Hoenn", "https://pokeapi.co/api/v2/pokedex/4/", 4),
         Region("Sinnoh", "https://pokeapi.co/api/v2/pokedex/5/", 5),
         Region("Unova", "https://pokeapi.co/api/v2/pokedex/8/", 8),
-        Region("Kalos", "https://pokeapi.co/api/v2/pokedex/12/", 12),
+        Region("Kalos-Central", "https://pokeapi.co/api/v2/pokedex/12/", 12),
+        Region("Kalos-Coastal", "https://pokeapi.co/api/v2/pokedex/13/", 13),
+        Region("Kalos-Mountain", "https://pokeapi.co/api/v2/pokedex/14/", 14),
         Region("Alola", "https://pokeapi.co/api/v2/pokedex/16/", 16),
         Region("Galar", "https://pokeapi.co/api/v2/pokedex/galar/", 27),  // Galar region
         Region("Hisui", "https://pokeapi.co/api/v2/pokedex/hisui/", 30),  // Hisui region
