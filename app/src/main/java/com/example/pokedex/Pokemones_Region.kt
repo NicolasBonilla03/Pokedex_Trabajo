@@ -29,7 +29,7 @@ class Pokemones_Region : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val regionName = intent.getStringExtra("REGION_NAME") ?: "kanto" // Recuperar la región
+        val regionName = intent.getStringExtra("REGION_NAME")?.capitalizeFirstLetter() ?: "kanto" // Recuperar la región
 
         setContent {
             PokedexTheme {
@@ -37,7 +37,7 @@ class Pokemones_Region : ComponentActivity() {
 
                 // Usar la región seleccionada
                 driverAdapter.PokemonsByRegion(
-                    region = regionName,
+                    region = regionName.lowercase(),
                     loadData = {
                         pokemonList.value = it
                     },
@@ -57,6 +57,10 @@ class Pokemones_Region : ComponentActivity() {
         }
     }
 }
+fun String.capitalizeFirstLetter(): String {
+    return this.lowercase().replaceFirstChar { it.uppercase() }
+}
+
 
 
 
@@ -76,7 +80,10 @@ fun PokemonList(pokemonEntries: List<PokemonEntry>, modifier: Modifier = Modifie
                         // Extraer el número del Pokémon desde la URL
                         val pokemonNumber = extractPokemonNumber(pokemon.pokemon_species.url)
                         Text(text = "ID: $pokemonNumber ")
-                        Text(text = "Nombre: ${pokemon.pokemon_species.name}")
+
+                    }
+                    Row {
+                        Text(text = "Nombre: ${pokemon.pokemon_species.name.capitalizeFirstLetter()}")
                     }
                 }
             }
