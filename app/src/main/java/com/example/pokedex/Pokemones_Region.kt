@@ -29,7 +29,7 @@ class Pokemones_Region : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val regionName = intent.getStringExtra("REGION_NAME")?.capitalizeFirstLetter() ?: "kanto" // Recuperar la región
+        val regionId = intent.getIntExtra("REGION_ID", 0) // Recuperar la región
 
         setContent {
             PokedexTheme {
@@ -37,7 +37,7 @@ class Pokemones_Region : ComponentActivity() {
 
                 // Usar la región seleccionada
                 driverAdapter.PokemonsByRegion(
-                    region = regionName.lowercase(),
+                    region = regionId.toString().lowercase(),
                     loadData = {
                         pokemonList.value = it
                     },

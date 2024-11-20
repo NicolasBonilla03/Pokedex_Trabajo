@@ -10,7 +10,8 @@ data class RegionResponse(
 
 data class Region(
     val name: String,
-    val url: String
+    val url: String,
+    val id: Int
 )
 
 
