@@ -62,6 +62,10 @@ class Pokemones_Region : ComponentActivity() {
 
 @Composable
 fun PokemonList(pokemonEntries: List<PokemonEntry>, modifier: Modifier = Modifier) {
+    if (pokemonEntries.isEmpty()) {
+        Text(text = "No hay Pokémon disponibles en esta región.")
+        return
+    }else{
     LazyColumn(modifier = modifier) {
         items(
             items = pokemonEntries,
@@ -74,6 +78,7 @@ fun PokemonList(pokemonEntries: List<PokemonEntry>, modifier: Modifier = Modifie
                 }
             }
         }
+    }
     }
 }
 
