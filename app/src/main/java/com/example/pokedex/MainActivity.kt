@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,16 +56,22 @@ class MainActivity : ComponentActivity() {
 
 
             }
-            PokedexScreen(regions = regions)
+            PokedexScreen(regions = regions, onClickRegion = { goToRegion()})
         }
     }
 
+    private fun goToRegion() {
+        val intent = Intent(this, Pokemones_Region::class.java)
+        startActivity(intent)
     }
+
+}
 
 
 @Composable
 fun PokedexScreen(
         regions: List<Region>,
+        onClickRegion: () -> Unit
 ){
     PokedexTheme {
         Scaffold(
@@ -85,8 +92,12 @@ fun PokedexScreen(
                                 Text(text = stringResource(id = R.string.title))
                                 Text(text = it.name)
                             }
+                            Button(onClick = { onClickRegion()}){
+                                Text(text = stringResource(id = R.string.go_to_region))
+                            }
 
                         }
+
                     }
                 }
             }
@@ -101,6 +112,7 @@ fun PokedexScreen(
 fun GreetingPreview() {
     PokedexScreen(
         regions = emptyList(),
+        onClickRegion = {}
     )
 }
 

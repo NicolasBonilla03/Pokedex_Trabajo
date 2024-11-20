@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Pokedex</string>
     <string name="title">Region: </string>
+    <string name="title_activity_pokemones_region">Pokemones_Region</string>
+    <string name="go_to_region">Ver Region</string>
 
 </resources>
