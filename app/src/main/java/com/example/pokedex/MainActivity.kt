@@ -30,18 +30,18 @@ import com.example.pokedex.ui.theme.PokedexTheme
 
 class MainActivity : ComponentActivity() {
     private val regions = listOf(
-        Region("Kanto", "https://pokeapi.co/api/v2/pokedex/2/", 2),
-        Region("Johto", "https://pokeapi.co/api/v2/pokedex/3/", 3),
-        Region("Hoenn", "https://pokeapi.co/api/v2/pokedex/4/", 4),
-        Region("Sinnoh", "https://pokeapi.co/api/v2/pokedex/5/", 5),
-        Region("Unova", "https://pokeapi.co/api/v2/pokedex/8/", 8),
-        Region("Kalos-Central", "https://pokeapi.co/api/v2/pokedex/12/", 12),
-        Region("Kalos-Coastal", "https://pokeapi.co/api/v2/pokedex/13/", 13),
-        Region("Kalos-Mountain", "https://pokeapi.co/api/v2/pokedex/14/", 14),
-        Region("Alola", "https://pokeapi.co/api/v2/pokedex/16/", 16),
-        Region("Galar", "https://pokeapi.co/api/v2/pokedex/galar/", 27),  // Galar region
-        Region("Hisui", "https://pokeapi.co/api/v2/pokedex/hisui/", 30),  // Hisui region
-        Region("Paldea", "https://pokeapi.co/api/v2/pokedex/paldea/", 31))
+        Region("Kanto", "https://pokeapi.co/api/v2/pokedex/2"),
+        Region("Johto", "https://pokeapi.co/api/v2/pokedex/3"),
+        Region("Hoenn", "https://pokeapi.co/api/v2/pokedex/4"),
+        Region("Sinnoh", "https://pokeapi.co/api/v2/pokedex/5"),
+        Region("Unova", "https://pokeapi.co/api/v2/pokedex/8"),
+        Region("Kalos-Central", "https://pokeapi.co/api/v2/pokedex/12"),
+        Region("Kalos-Coastal", "https://pokeapi.co/api/v2/pokedex/13"),
+        Region("Kalos-Mountain", "https://pokeapi.co/api/v2/pokedex/14"),
+        Region("Alola", "https://pokeapi.co/api/v2/pokedex/16"),
+        Region("Galar", "https://pokeapi.co/api/v2/pokedex/27"),  // Galar region
+        Region("Hisui", "https://pokeapi.co/api/v2/pokedex/30"),  // Hisui region
+        Region("Paldea", "https://pokeapi.co/api/v2/pokedex/31"))
 
     private val regionService by lazy { RegionService() }
 
@@ -87,13 +87,13 @@ fun PokedexScreen(
                 LazyColumn {
                     items(
                         items = regions,
-                        key = { it.id } // Usar el ID como clave única
+                        key = { it.url.split("/").last().toInt() } // Usar el ID como clave única
                     ) { region ->
                         Column {
                             Row {
                                 Text(text = region.name.capitalizeFirstLetter())
                             }
-                            Button(onClick = { onClickRegion(region.id) }) { // Pasar el ID de la región
+                            Button(onClick = { onClickRegion(region.url.split("/").last().toInt()) }) { // Pasar el ID de la región
                                 Text(text = stringResource(id = R.string.go_to_region))
                             }
                         }
