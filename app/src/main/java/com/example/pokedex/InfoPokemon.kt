@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -106,7 +105,7 @@ fun InfoScreen(
                     )
                 }
             }
-            Column() {
+            Column {
                 if (speciesInfo != null) {
                     val flavorText = speciesInfo.flavor_text_entries
                         .firstOrNull { it.language.name == "es" }?.flavor_text?.replace("\n", " ")
