@@ -5,20 +5,37 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.example.pokedex.services.models.Region
+import com.example.pokedex.ui.theme.PokedexColors
 import com.example.pokedex.ui.theme.PokedexTheme
 
 class MainActivity : ComponentActivity() {
@@ -47,6 +64,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            window.statusBarColor = PokedexColors.DarkGray.toArgb()
+            WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
             PokedexTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     PokedexScreen(
@@ -74,42 +94,88 @@ fun PokedexScreen(
     modifier: Modifier = Modifier,
     onClickRegion: (Int) -> Unit
 ) {
-    PokedexTheme {
-        Scaffold(
-            topBar = {
-                Text(text = stringResource(id = R.string.app_name))
-            }
-        ) { innerPadding ->
-            Column(modifier = Modifier.padding(innerPadding)) {
-                LazyColumn {
-                    items(
-                        items = regions,
-                        key = { it.url.split("/").last().toInt() }
-                    ) { region ->
-                        Column {
-                            Row {
-                                Text(text = region.name.replaceFirstChar { it.uppercase() })
-                            }
-                            Button(onClick = { onClickRegion(region.url.split("/").last().toInt()) }) {
-                                Text(text = stringResource(id = R.string.go_to_region))
-                            }
-                        }
-                    }
+    Scaffold(
+        modifier = Modifier
+            .padding(WindowInsets.systemBars.asPaddingValues()),
+        topBar = { PokedexHeader() }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .background(color = PokedexColors.PrimaryRed) // Fondo rojo
+        ) {
+            LazyColumn(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .background(PokedexColors.DarkGray, shape = RoundedCornerShape(16.dp)) // Fondo gris oscuro
+                    .padding(16.dp)
+            ) {
+                items(
+                    items = regions,
+                    key = { it.url.split("/").last().toInt() }
+                ) { region ->
+                    RegionItem(region, onClickRegion)
                 }
             }
         }
     }
 }
 
+@Composable
+fun PokedexHeader() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(PokedexColors.DarkGray) // Fondo gris oscuro
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "Pokédex",
+            color = PokedexColors.Gold, // Amarillo
+            style = MaterialTheme.typography.headlineLarge
+        )
+    }
+}
 
-
-
+@Composable
+fun RegionItem(region: Region, onClickRegion: (Int) -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .background(PokedexColors.LightGray, shape = RoundedCornerShape(12.dp)) // Fondo gris claro
+            .padding(16.dp),
+    ) {
+        Text(
+            text = region.name.replaceFirstChar { it.uppercase() },
+            color = Color.White,
+            fontSize = 40.sp,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Button(
+            onClick = { onClickRegion(region.url.split("/").last().toInt()) },
+            colors = ButtonDefaults.buttonColors(containerColor = PokedexColors.Blue) // Azul
+        ) {
+            Text(
+                text = "Ir a región",
+                fontSize = 20.sp,
+                color = Color.White
+            )
+        }
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     PokedexScreen(
-        regions = emptyList(),
+        regions = listOf(
+            Region("Kanto", "https://pokeapi.co/api/v2/pokedex/2"),
+            Region("Johto", "https://pokeapi.co/api/v2/pokedex/3")
+        ),
         onClickRegion = {}
     )
 }
+

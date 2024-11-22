@@ -5,27 +5,42 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import coil.compose.AsyncImage
 import com.example.pokedex.services.driverAdapters.PokemonDriverAdapter
 import com.example.pokedex.services.models.PokemonEntry
 import com.example.pokedex.services.models.Region
+import com.example.pokedex.ui.theme.PokedexColors
 import com.example.pokedex.ui.theme.PokedexTheme
 
 class PokemonesRegion : ComponentActivity() {
@@ -75,19 +90,22 @@ class PokemonesRegion : ComponentActivity() {
         enableEdgeToEdge()
 
         val regionId = intent.getIntExtra("REGION_ID", 0)
-        val regionName =
-            regions.find { it.url.split("/").last().toInt() == regionId }?.name ?: "Desconocida"
+        val regionName = regions.find { it.url.split("/").last().toInt() == regionId }?.name ?: "Desconocida"
 
         setContent {
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            window.statusBarColor = PokedexColors.DarkGray.toArgb()
+            WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
             PokedexTheme {
                 val regionPokemonList = remember { mutableStateOf<List<PokemonEntry>>(emptyList()) }
                 val filteredPokemonList = remember { mutableStateOf<List<PokemonEntry>>(emptyList()) }
                 val types = remember { mutableStateOf(listOf(
                     "Todos","normal", "fighting", "flying", "poison", "ground", "rock", "bug", "ghost", "steel", "fire", "water", "grass", "electric",
-                    "psychic", "ice", "dragon", "dark", "fairy","stellar","unknown")) }
+                    "psychic", "ice", "dragon", "dark", "fairy")) }
                 val selectedType = remember { mutableStateOf(types.value.first()) }
                 val searchQuery = remember { mutableStateOf("") }
 
+                // Cargar datos
                 driverAdapter.PokemonsByRegion(
                     region = regionId.toString().lowercase(),
                     loadData = {
@@ -108,7 +126,6 @@ class PokemonesRegion : ComponentActivity() {
                         println("Error al cargar Pokémon de la región.")
                     }
                 )
-
                 val filterByType: (String) -> Unit = { type ->
                     selectedType.value = type
                     if (type == "Todos") {
@@ -137,42 +154,104 @@ class PokemonesRegion : ComponentActivity() {
                 }
 
                 Scaffold(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(WindowInsets.systemBars.asPaddingValues()),
                     topBar = {
-                        Text(
-                            text = "Pokemones de la región: $regionName",
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    }) { innerPadding ->
-                    Column(modifier = Modifier.padding(innerPadding)) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(PokedexColors.DarkGray)
+                                .padding(vertical = 16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = regionName,
+                                color = PokedexColors.Gold, // Amarillo
+                                style = MaterialTheme.typography.headlineLarge
+                            )
+                        }
+                    }
+                ) { innerPadding ->
+                    Column(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .background(localColorBackground)
+                            .fillMaxSize()
+                    ) {
+                        // Selector de tipo
                         TypeSelector(
                             types = types.value,
-                            onTypeSelected = { type ->
-                                filterByType(type)
-                            }
-                        )
-                        SearchBar(
-                            query = searchQuery.value,
-                            onQueryChange = { query ->
-                                filterBySearch(query)
-                            }
+                            onTypeSelected = { type -> filterByType(type) },
+                            modifier = Modifier.padding(8.dp)
                         )
 
-                        PokemonList(
-                            pokemonEntries = filteredPokemonList.value,
-                            modifier = Modifier.padding(innerPadding),
-                            onClickPokemon = {
-                                val intent = Intent(this@PokemonesRegion, InfoPokemon::class.java)
-                                intent.putExtra("POKEMON_ID", it)
-                                startActivity(intent)
-                            }
+                        // Barra de búsqueda
+                        SearchBar(
+                            query = searchQuery.value,
+                            onQueryChange = { query -> filterBySearch(query) },
+                            modifier = Modifier.padding(horizontal = 16.dp)
                         )
+
+                        // Lista de Pokémon
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp)
+                        ) {
+                            items(
+                                items = filteredPokemonList.value,
+                                key = { it.entry_number }
+                            ) { pokemon ->
+                                PokemonCard(
+                                    pokemon = pokemon,
+                                    onClick = {
+                                        val intent = Intent(this@PokemonesRegion, InfoPokemon::class.java)
+                                        intent.putExtra("POKEMON_ID", extractPokemonNumber(pokemon.pokemon_species.url).toString())
+                                        startActivity(intent)
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
-
     }
+
+    // Tarjeta individual de Pokémon
+    @Composable
+    fun PokemonCard(pokemon: PokemonEntry, onClick: () -> Unit) {
+        CardWithPadding(
+            backgroundColor = localColorPrimary,
+            contentColor = Color.White,
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text(
+                        text = "ID: ${extractPokemonNumber(pokemon.pokemon_species.url)}",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Text(
+                        text = "Nombre: ${pokemon.pokemon_species.name.replaceFirstChar { it.uppercase() }}",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+                AsyncImage(
+                    model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${extractPokemonNumber(pokemon.pokemon_species.url)}.png",
+                    contentDescription = "Imagen del Pokémon",
+                    modifier = Modifier.size(64.dp)
+                )
+            }
+            Button(onClick = onClick, modifier = Modifier.padding(top = 8.dp)) {
+                Text("Ver detalles")
+            }
+        }
+    }
+
     @Composable
     fun SearchBar(
         query: String,

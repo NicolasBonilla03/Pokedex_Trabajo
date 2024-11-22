@@ -2,10 +2,9 @@ package com.example.pokedex.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
-
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val PokedexRed = Color(0xFFFF1C1C)    // Rojo principal
+val PokedexYellow = Color(0xFFFFD700) // Amarillo para acentos
+val PokedexBlack = Color(0xFF212121)  // Negro para fondo o texto
+val PokedexGray = Color(0xFFB0BEC5)   // Gris metálico
+val PokedexWhite = Color(0xFFFFFFFF)  // Blanco puro
+val PokedexBlue = Color(0xFF1E88E5)
