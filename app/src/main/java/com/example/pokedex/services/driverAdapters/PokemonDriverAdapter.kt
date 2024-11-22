@@ -2,27 +2,12 @@ package com.example.pokedex.services.driverAdapters
 import com.example.pokedex.services.controllers.RegionService
 import com.example.pokedex.services.models.PokemonEntry
 import com.example.pokedex.services.models.PokemonInfo
+import com.example.pokedex.services.models.PokemonSpecies
 import com.example.pokedex.services.models.PokemonSpeciesInfo
-import com.example.pokedex.services.models.Region
-import com.example.pokedex.services.models.RegionResponse
-import kotlinx.coroutines.runBlocking
-
 class PokemonDriverAdapter {
     private val service: RegionService = RegionService()
 
-    fun allRegions(
-        loadData: (list: List<Region>) -> Unit,
-        errorData: () -> Unit
-    ) {
-        this.service.getAllRegions(
-            success = {
-                loadData(it)
-            },
-            error = {
-                errorData()
-            }
-        )
-    }
+
     fun PokemonsByRegion(
         region: String,
         loadData: (list: List<PokemonEntry>) -> Unit,
@@ -71,6 +56,33 @@ class PokemonDriverAdapter {
             }
         )
     }
+
+    fun PokemonsByType(
+        type: String,
+        loadData: (list: List<PokemonEntry>) -> Unit,
+        errorData: () -> Unit
+    ) {
+        this.service.getPokemonsByType(
+            type = type,
+            success = {
+                val pokemonEntries = it.pokemon.map { pokemon ->
+                    val entryNumber = extractPokemonNumber(pokemon.pokemon.url)
+                    PokemonEntry(entryNumber, PokemonSpecies(pokemon.pokemon.name, pokemon.pokemon.url))
+                }
+                loadData(pokemonEntries)
+            },
+            error = {
+                errorData()
+            }
+        )
+    }
+
+    fun extractPokemonNumber(url: String): Int {
+        return url.trimEnd('/').split('/').last().toInt()
+    }
+
+
+
 
 
 

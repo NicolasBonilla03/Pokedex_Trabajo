@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,24 +52,54 @@ class PokemonesRegion : ComponentActivity() {
         enableEdgeToEdge()
 
         val regionId = intent.getIntExtra("REGION_ID", 0) // Recuperar la región
-        val regionName = regions.find { it.url.split("/").last().toInt() == regionId }?.name ?: "Desconocida"
+        val regionName =
+            regions.find { it.url.split("/").last().toInt() == regionId }?.name ?: "Desconocida"
 
         setContent {
             PokedexTheme {
-                val pokemonList = remember { mutableStateOf<List<PokemonEntry>>(emptyList()) }
+                val regionPokemonList = remember { mutableStateOf<List<PokemonEntry>>(emptyList()) }
+                val filteredPokemonList = remember { mutableStateOf<List<PokemonEntry>>(emptyList()) }
+                val types = remember { mutableStateOf(listOf(
+                    "Todos","normal", "fighting", "flying", "poison", "ground", "rock", "bug", "ghost", "steel", "fire", "water", "grass", "electric",
+                    "psychic", "ice", "dragon", "dark", "fairy","stellar","unknown")) }
+                val selectedType = remember { mutableStateOf(types.value.first()) }
 
-                // Usar la región seleccionada
+                // Cargar Pokémon de la región seleccionada
                 driverAdapter.PokemonsByRegion(
                     region = regionId.toString().lowercase(),
                     loadData = {
-                        pokemonList.value = it
+                        regionPokemonList.value = it
+                        filteredPokemonList.value = it // Mostrar todos inicialmente
                     },
                     errorData = {
-                        // Manejar errores
-                        println("Error al cargar los Pokémon de la región.")
+                        println("Error al cargar Pokémon de la región.")
                     }
                 )
 
+                // Función para filtrar Pokémon por tipo
+                val filterByType: (String) -> Unit = { type ->
+                    selectedType.value = type
+                    if (type == "Todos") {
+                        filteredPokemonList.value = regionPokemonList.value
+
+                    } else {
+                        driverAdapter.PokemonsByType(
+                            type = type,
+                            loadData = { typePokemonList ->
+                                // Combinar los Pokémon por tipo y región
+                                val filtered = regionPokemonList.value.filter { regionPokemon ->
+                                    val pokemonNumber =
+                                        extractPokemonNumber(regionPokemon.pokemon_species.url)
+                                    typePokemonList.any { it.entry_number == pokemonNumber }
+                                }
+                                filteredPokemonList.value = filtered
+                            },
+                            errorData = {
+                                println("Error al cargar Pokémon por tipo.")
+                            }
+                        )
+                    }
+                }
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
@@ -76,74 +108,116 @@ class PokemonesRegion : ComponentActivity() {
                             modifier = Modifier.padding(16.dp)
                         )
                     }) { innerPadding ->
-                    PokemonList(
-                        pokemonEntries = pokemonList.value,
-                        modifier = Modifier.padding(innerPadding),
-                        onClickPokemon = {
-                            val intent = Intent(this, InfoPokemon::class.java)
-                            intent.putExtra("POKEMON_ID", it)
-                            startActivity(intent)
+                    Column(modifier = Modifier.padding(innerPadding)) {
+                        // Selector de Tipos
+                        TypeSelector(
+                            types = types.value,
+                            onTypeSelected = { type ->
+                                filterByType(type)
+                            }
+                        )
+
+                        // Lista de Pokémon Filtrados
+                        PokemonList(
+                            pokemonEntries = filteredPokemonList.value,
+                            modifier = Modifier.padding(innerPadding),
+                            onClickPokemon = {
+                                val intent = Intent(this@PokemonesRegion, InfoPokemon::class.java)
+                                intent.putExtra("POKEMON_ID", it)
+                                startActivity(intent)
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+    }
+
+    @Composable
+    fun TypeSelector(
+        types: List<String>,
+        onTypeSelected: (String) -> Unit,
+        modifier: Modifier = Modifier
+    ) {
+        val expanded = remember { mutableStateOf(false) }
+        val selectedType = remember { mutableStateOf(types.firstOrNull() ?: "Seleccionar tipo") }
+
+        Column(modifier = modifier) {
+            Button(onClick = { expanded.value = true }) {
+                Text(text = selectedType.value)
+            }
+            DropdownMenu(
+                expanded = expanded.value,
+                onDismissRequest = { expanded.value = false }
+            ) {
+                types.forEach { type ->
+                    DropdownMenuItem(
+                        text = { Text(text = type.replaceFirstChar { it.uppercase() }) },
+                        onClick = {
+                            expanded.value = false
+                            selectedType.value = type
+                            onTypeSelected(type)
                         }
                     )
                 }
             }
         }
     }
-}
 
 
+    @Composable
+    fun PokemonList(
+        pokemonEntries: List<PokemonEntry>,
+        modifier: Modifier = Modifier,
+        onClickPokemon: (String) -> Unit = {}
+    ) {
+        if (pokemonEntries.isEmpty()) {
+            Text(text = "No hay Pokémon disponibles en esta región.")
+            return
+        } else {
+            LazyColumn(modifier = modifier) {
+                items(
+                    items = pokemonEntries,
+                    key = { it.entry_number }
+                ) { pokemon ->
+                    Column {
+                        Row {
+                            // Extraer el número del Pokémon desde la URL
+                            val pokemonNumber = extractPokemonNumber(pokemon.pokemon_species.url)
+                            Text(text = "ID: $pokemonNumber ")
 
+                        }
+                        Row {
+                            Text(text = "Nombre: ${pokemon.pokemon_species.name.replaceFirstChar { it.uppercase() }}")
+                        }
 
+                        Button(onClick = {
+                            val pokemonNumber = extractPokemonNumber(pokemon.pokemon_species.url)
+                            onClickPokemon(pokemonNumber.toString())
+                        }) {
 
-@Composable
-fun PokemonList(
-    pokemonEntries: List<PokemonEntry>,
-    modifier: Modifier = Modifier,
-    onClickPokemon: (String) -> Unit = {}
-) {
-    if (pokemonEntries.isEmpty()) {
-        Text(text = "No hay Pokémon disponibles en esta región.")
-        return
-    } else {
-        LazyColumn(modifier = modifier) {
-            items(
-                items = pokemonEntries,
-                key = { it.entry_number }
-            ) { pokemon ->
-                Column {
-                    Row {
-                        // Extraer el número del Pokémon desde la URL
-                        val pokemonNumber = extractPokemonNumber(pokemon.pokemon_species.url)
-                        Text(text = "ID: $pokemonNumber ")
-
-                    }
-                    Row {
-                        Text(text = "Nombre: ${pokemon.pokemon_species.name.replaceFirstChar { it.uppercase() }}")
-                    }
-
-                    Button(onClick = {
-                        val pokemonNumber = extractPokemonNumber(pokemon.pokemon_species.url)
-                        onClickPokemon(pokemonNumber.toString())
-                    }) {
-
-                        Text(text = "Ver detalles")
+                            Text(text = "Ver detalles")
+                        }
                     }
                 }
             }
         }
     }
-}
-fun extractPokemonNumber(url: String): Int {
-    return url.trimEnd('/').split('/').last().toInt()
-}
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview2() {
-    PokedexTheme {
-        PokemonList(
-            pokemonEntries = emptyList(),
-            modifier = Modifier.padding(16.dp)
-        )
+    private fun extractPokemonNumber(url: String): Int {
+        return url.trimEnd('/').split('/').last().toInt()
+    }
+
+    @Preview(showBackground = true)
+    @Composable
+    fun GreetingPreview2() {
+        PokedexTheme {
+            TypeSelector(types = listOf("fire", "water", "grass"), onTypeSelected = {})
+            PokemonList(
+                pokemonEntries = emptyList(),
+                modifier = Modifier.padding(16.dp)
+            )
+        }
     }
 }

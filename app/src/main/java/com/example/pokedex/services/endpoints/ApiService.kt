@@ -4,8 +4,8 @@ import com.example.pokedex.services.models.EvolutionChain
 import com.example.pokedex.services.models.PokedexResponse
 import com.example.pokedex.services.models.PokemonInfo
 import com.example.pokedex.services.models.PokemonSpeciesInfo
-import com.example.pokedex.services.models.Region
 import com.example.pokedex.services.models.RegionResponse
+import com.example.pokedex.services.models.TypeResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -31,5 +31,11 @@ interface ApiService {
     // ApiService
     @GET("pokemon-species/{nameOrId}/")
     suspend fun getPokemonSpecies(@Path("nameOrId") nameOrId: String): Response<PokemonSpeciesInfo>
+
+    // Obtener la lista de tipos de Pokémon
+    @GET("type/{type}/")
+    suspend fun getPokemonsByType(@Path("type") type: String): Response<TypeResponse>
+
+
 
 }
