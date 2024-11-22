@@ -38,20 +38,42 @@ class PokemonesRegion : ComponentActivity() {
         Region("Hoenn", "https://pokeapi.co/api/v2/pokedex/4"),
         Region("Sinnoh", "https://pokeapi.co/api/v2/pokedex/5"),
         Region("Unova", "https://pokeapi.co/api/v2/pokedex/8"),
+        Region("Conquest-Gallery", "https://pokeapi.co/api/v2/pokedex/11"),
         Region("Kalos-Central", "https://pokeapi.co/api/v2/pokedex/12"),
         Region("Kalos-Coastal", "https://pokeapi.co/api/v2/pokedex/13"),
         Region("Kalos-Mountain", "https://pokeapi.co/api/v2/pokedex/14"),
-        Region("Alola", "https://pokeapi.co/api/v2/pokedex/16"),
+        Region("Alola", "https://pokeapi.co/api/v2/pokedex/21"),
         Region("Galar", "https://pokeapi.co/api/v2/pokedex/27"),
         Region("Hisui", "https://pokeapi.co/api/v2/pokedex/30"),
-        Region("Paldea", "https://pokeapi.co/api/v2/pokedex/31")
+        Region("Paldea", "https://pokeapi.co/api/v2/pokedex/31"),
+        Region("Blueberry", "https://pokeapi.co/api/v2/pokedex/32"),
+        Region("Kitakami", "https://pokeapi.co/api/v2/pokedex/33"),
+
+    )
+//FILTRO PARA QUE SE MUESTREN SOLAMENTE LOS POKEMONES DE ESA REGION
+    private val regionRanges = mapOf(
+        "Kanto" to 1..151,
+        "Johto" to 152..251,
+        "Hoenn" to 252..386,
+        "Sinnoh" to 387..493,
+        "Unova" to 494..649,
+        "Conquest-Gallery" to 493..493,
+        "Kalos-Central" to 650..721,
+        "Kalos-Coastal" to 650..721,
+        "Kalos-Mountain" to 650..721,
+        "Alola" to 722..809,
+        "Galar" to 810..898,
+        "Hisui" to 899..905,
+        "Paldea" to 906..1008,
+        "Kitakami" to 1009..1010,
+        "Blueberry" to 1011..1017,
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val regionId = intent.getIntExtra("REGION_ID", 0) // Recuperar la región
+        val regionId = intent.getIntExtra("REGION_ID", 0)
         val regionName =
             regions.find { it.url.split("/").last().toInt() == regionId }?.name ?: "Desconocida"
 
@@ -63,33 +85,39 @@ class PokemonesRegion : ComponentActivity() {
                     "Todos","normal", "fighting", "flying", "poison", "ground", "rock", "bug", "ghost", "steel", "fire", "water", "grass", "electric",
                     "psychic", "ice", "dragon", "dark", "fairy","stellar","unknown")) }
                 val selectedType = remember { mutableStateOf(types.value.first()) }
+                val searchQuery = remember { mutableStateOf("") }
 
-                // Cargar Pokémon de la región seleccionada
                 driverAdapter.PokemonsByRegion(
                     region = regionId.toString().lowercase(),
                     loadData = {
-                        regionPokemonList.value = it
-                        filteredPokemonList.value = it // Mostrar todos inicialmente
+                        val range = regionRanges[regionName]
+                        if (range != null) {
+                            val filteredPokemon = it.filter { pokemon ->
+                                val entryNumber = extractPokemonNumber(pokemon.pokemon_species.url)
+                                entryNumber in range
+                            }
+                            regionPokemonList.value = filteredPokemon
+                            filteredPokemonList.value = filteredPokemon
+                        } else {
+                            regionPokemonList.value = it
+                            filteredPokemonList.value = it
+                        }
                     },
                     errorData = {
                         println("Error al cargar Pokémon de la región.")
                     }
                 )
 
-                // Función para filtrar Pokémon por tipo
                 val filterByType: (String) -> Unit = { type ->
                     selectedType.value = type
                     if (type == "Todos") {
                         filteredPokemonList.value = regionPokemonList.value
-
                     } else {
                         driverAdapter.PokemonsByType(
                             type = type,
                             loadData = { typePokemonList ->
-                                // Combinar los Pokémon por tipo y región
                                 val filtered = regionPokemonList.value.filter { regionPokemon ->
-                                    val pokemonNumber =
-                                        extractPokemonNumber(regionPokemon.pokemon_species.url)
+                                    val pokemonNumber = extractPokemonNumber(regionPokemon.pokemon_species.url)
                                     typePokemonList.any { it.entry_number == pokemonNumber }
                                 }
                                 filteredPokemonList.value = filtered
@@ -100,6 +128,13 @@ class PokemonesRegion : ComponentActivity() {
                         )
                     }
                 }
+                val filterBySearch: (String) -> Unit = { query ->
+                    searchQuery.value = query
+                    filteredPokemonList.value = regionPokemonList.value.filter { pokemon ->
+                        pokemon.pokemon_species.name.contains(query, ignoreCase = true)
+                    }
+                }
+
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
@@ -109,15 +144,19 @@ class PokemonesRegion : ComponentActivity() {
                         )
                     }) { innerPadding ->
                     Column(modifier = Modifier.padding(innerPadding)) {
-                        // Selector de Tipos
                         TypeSelector(
                             types = types.value,
                             onTypeSelected = { type ->
                                 filterByType(type)
                             }
                         )
+                        SearchBar(
+                            query = searchQuery.value,
+                            onQueryChange = { query ->
+                                filterBySearch(query)
+                            }
+                        )
 
-                        // Lista de Pokémon Filtrados
                         PokemonList(
                             pokemonEntries = filteredPokemonList.value,
                             modifier = Modifier.padding(innerPadding),
@@ -132,6 +171,21 @@ class PokemonesRegion : ComponentActivity() {
             }
         }
 
+    }
+    @Composable
+    fun SearchBar(
+        query: String,
+        onQueryChange: (String) -> Unit,
+        modifier: Modifier = Modifier
+    ) {
+        androidx.compose.material3.TextField(
+            value = query,
+            onValueChange = { newText ->
+                onQueryChange(newText)
+            },
+            label = { Text("Buscar Pokémon") },
+            modifier = modifier.padding(16.dp)
+        )
     }
 
     @Composable
@@ -183,7 +237,6 @@ class PokemonesRegion : ComponentActivity() {
                 ) { pokemon ->
                     Column {
                         Row {
-                            // Extraer el número del Pokémon desde la URL
                             val pokemonNumber = extractPokemonNumber(pokemon.pokemon_species.url)
                             Text(text = "ID: $pokemonNumber ")
 

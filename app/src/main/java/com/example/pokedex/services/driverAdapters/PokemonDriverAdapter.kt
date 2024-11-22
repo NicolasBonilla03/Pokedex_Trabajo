@@ -77,7 +77,7 @@ class PokemonDriverAdapter {
         )
     }
 
-    fun extractPokemonNumber(url: String): Int {
+    private fun extractPokemonNumber(url: String): Int {
         return url.trimEnd('/').split('/').last().toInt()
     }
 

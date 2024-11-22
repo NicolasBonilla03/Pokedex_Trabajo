@@ -36,14 +36,12 @@ class InfoPokemon : ComponentActivity() {
                 val pokemonInfo = remember { mutableStateOf<PokemonInfo?>(null) }
                 val speciesInfo = remember { mutableStateOf<PokemonSpeciesInfo?>(null) }
 
-                // Cargar información del Pokémon
                 driverAdapter.PokemonInfo(
                     nameOrId = pokemonId ?: "",
                     loadData = { pokemonInfo.value = it },
                     errorData = { println("Error al cargar los detalles del Pokémon.") }
                 )
 
-                // Cargar información adicional ("Acerca de")
                 driverAdapter.PokemonSpeciesInfo(
                     nameOrId = pokemonId ?: "",
                     loadData = { speciesInfo.value = it },
@@ -125,7 +123,7 @@ fun InfoScreen(
                     contentDescription = "Imagen del Pokémon",
                     modifier = Modifier
                         .padding(16.dp)
-                        .size(200.dp) // Cambia este valor para ajustar el tamaño
+                        .size(200.dp)
                 )
             }
             Row {
