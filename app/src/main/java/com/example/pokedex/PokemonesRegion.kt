@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.pokedex.services.driverAdapters.PokemonDriverAdapter
 import com.example.pokedex.services.models.PokemonEntry
 import com.example.pokedex.services.models.Region
@@ -243,6 +244,13 @@ class PokemonesRegion : ComponentActivity() {
                         }
                         Row {
                             Text(text = "Nombre: ${pokemon.pokemon_species.name.replaceFirstChar { it.uppercase() }}")
+                        }
+                        Row {
+                            val pokemonEntryNumber = extractPokemonNumber(pokemon.pokemon_species.url)
+                            AsyncImage(
+                                model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonEntryNumber}.png",
+                                contentDescription = "Imagen del Pokémon"
+                                )
                         }
 
                         Button(onClick = {
