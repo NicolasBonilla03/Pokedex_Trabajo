@@ -2,7 +2,6 @@ package com.example.pokedex
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,15 +15,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.pokedex.services.controllers.RegionService
-import com.example.pokedex.services.driverAdapters.PokemonDriverAdapter
 import com.example.pokedex.services.models.Region
 import com.example.pokedex.ui.theme.PokedexTheme
 
@@ -65,7 +59,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun goToRegion(regionId: Int) {
-        val intent = Intent(this, Pokemones_Region::class.java)
+        val intent = Intent(this, PokemonesRegion::class.java)
         intent.putExtra("REGION_ID", regionId) // Pasar el ID de la región
         startActivity(intent)
     }

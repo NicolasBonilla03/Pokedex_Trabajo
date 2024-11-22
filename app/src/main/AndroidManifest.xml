@@ -15,7 +15,12 @@
         android:theme="@style/Theme.Pokedex"
         tools:targetApi="31">
         <activity
-            android:name=".Pokemones_Region"
+            android:name=".InfoPokemon"
+            android:exported="false"
+            android:label="@string/title_activity_info_pokemon"
+            android:theme="@style/Theme.Pokedex" />
+        <activity
+            android:name=".PokemonesRegion"
             android:exported="false"
             android:label="@string/title_activity_pokemones_region"
             android:theme="@style/Theme.Pokedex" />

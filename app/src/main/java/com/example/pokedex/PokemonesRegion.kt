@@ -1,5 +1,6 @@
 package com.example.pokedex
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +24,7 @@ import com.example.pokedex.services.driverAdapters.PokemonDriverAdapter
 import com.example.pokedex.services.models.PokemonEntry
 import com.example.pokedex.ui.theme.PokedexTheme
 
-class Pokemones_Region : ComponentActivity() {
+class PokemonesRegion : ComponentActivity() {
     private val driverAdapter = PokemonDriverAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,7 +52,12 @@ class Pokemones_Region : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     PokemonList(
                         pokemonEntries = pokemonList.value,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        onClickPokemon = {
+                             val intent = Intent(this, InfoPokemon::class.java)
+                             intent.putExtra("POKEMON_ID", it)
+                             startActivity(intent)
+                        }
                     )
                 }
             }
@@ -65,7 +72,11 @@ fun String.capitalizeFirstLetter(): String {
 
 
 @Composable
-fun PokemonList(pokemonEntries: List<PokemonEntry>, modifier: Modifier = Modifier) {
+fun PokemonList(
+    pokemonEntries: List<PokemonEntry>,
+    modifier: Modifier = Modifier,
+    onClickPokemon: (String) -> Unit = {}
+) {
     if (pokemonEntries.isEmpty()) {
         Text(text = "No hay Pokémon disponibles en esta región.")
         return
@@ -84,6 +95,12 @@ fun PokemonList(pokemonEntries: List<PokemonEntry>, modifier: Modifier = Modifie
                     }
                     Row {
                         Text(text = "Nombre: ${pokemon.pokemon_species.name.capitalizeFirstLetter()}")
+                    }
+
+                    Button(onClick = {
+                        onClickPokemon(pokemon.entry_number.toString())
+                    }) {
+                        Text(text = "Ver detalles")
                     }
                 }
             }
