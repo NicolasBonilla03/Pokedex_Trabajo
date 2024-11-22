@@ -22,16 +22,35 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.pokedex.services.driverAdapters.PokemonDriverAdapter
 import com.example.pokedex.services.models.PokemonEntry
+import com.example.pokedex.services.models.Region
 import com.example.pokedex.ui.theme.PokedexTheme
 
 class PokemonesRegion : ComponentActivity() {
     private val driverAdapter = PokemonDriverAdapter()
+
+    // Lista de regiones predefinidas con sus IDs
+    private val regions = listOf(
+        Region("National", "https://pokeapi.co/api/v2/pokedex/1"),
+        Region("Kanto", "https://pokeapi.co/api/v2/pokedex/2"),
+        Region("Johto", "https://pokeapi.co/api/v2/pokedex/3"),
+        Region("Hoenn", "https://pokeapi.co/api/v2/pokedex/4"),
+        Region("Sinnoh", "https://pokeapi.co/api/v2/pokedex/5"),
+        Region("Unova", "https://pokeapi.co/api/v2/pokedex/8"),
+        Region("Kalos-Central", "https://pokeapi.co/api/v2/pokedex/12"),
+        Region("Kalos-Coastal", "https://pokeapi.co/api/v2/pokedex/13"),
+        Region("Kalos-Mountain", "https://pokeapi.co/api/v2/pokedex/14"),
+        Region("Alola", "https://pokeapi.co/api/v2/pokedex/16"),
+        Region("Galar", "https://pokeapi.co/api/v2/pokedex/27"),
+        Region("Hisui", "https://pokeapi.co/api/v2/pokedex/30"),
+        Region("Paldea", "https://pokeapi.co/api/v2/pokedex/31")
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         val regionId = intent.getIntExtra("REGION_ID", 0) // Recuperar la región
+        val regionName = regions.find { it.url.split("/").last().toInt() == regionId }?.name ?: "Desconocida"
 
         setContent {
             PokedexTheme {
@@ -49,14 +68,21 @@ class PokemonesRegion : ComponentActivity() {
                     }
                 )
 
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    topBar = {
+                        Text(
+                            text = "Pokemones de la región: $regionName",
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }) { innerPadding ->
                     PokemonList(
                         pokemonEntries = pokemonList.value,
                         modifier = Modifier.padding(innerPadding),
                         onClickPokemon = {
-                             val intent = Intent(this, InfoPokemon::class.java)
-                             intent.putExtra("POKEMON_ID", it)
-                             startActivity(intent)
+                            val intent = Intent(this, InfoPokemon::class.java)
+                            intent.putExtra("POKEMON_ID", it)
+                            startActivity(intent)
                         }
                     )
                 }
@@ -64,6 +90,7 @@ class PokemonesRegion : ComponentActivity() {
         }
     }
 }
+
 fun String.capitalizeFirstLetter(): String {
     return this.lowercase().replaceFirstChar { it.uppercase() }
 }
@@ -98,8 +125,10 @@ fun PokemonList(
                     }
 
                     Button(onClick = {
-                        onClickPokemon(pokemon.entry_number.toString())
+                        val pokemonNumber = extractPokemonNumber(pokemon.pokemon_species.url)
+                        onClickPokemon(pokemonNumber.toString())
                     }) {
+
                         Text(text = "Ver detalles")
                     }
                 }

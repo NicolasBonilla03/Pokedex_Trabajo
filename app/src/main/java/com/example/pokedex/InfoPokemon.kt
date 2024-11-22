@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -77,10 +78,9 @@ fun InfoScreen(
         Text(text = "Cargando detalles del Pokémon...")
     } else {
         val pokemonName = pokemonInfo.name
-        Text(text = "Detalles del Pokémon: $pokemonName")
         Column {
             Row {
-                Text(text = "Nombre: $pokemonName")
+                Text(text = "Nombre: ${pokemonName.capitalize()}")
             }
             Row {
                 Text(text = "ID: ${pokemonInfo.id}")
@@ -122,11 +122,13 @@ fun InfoScreen(
             }
 
             Row {
-                Text(text = "Imagen Pokemon")
+                Text(text = "Imagen Pokémon")
                 AsyncImage(
                     model = pokemonInfo.sprites.front_default,
                     contentDescription = "Imagen del Pokémon",
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .size(200.dp) // Cambia este valor para ajustar el tamaño
                 )
             }
             Row {
@@ -134,7 +136,9 @@ fun InfoScreen(
                 AsyncImage(
                     model = pokemonInfo.sprites.front_shiny,
                     contentDescription = "Imagen shiny del Pokémon",
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .size(200.dp)
                 )
         }
         }
