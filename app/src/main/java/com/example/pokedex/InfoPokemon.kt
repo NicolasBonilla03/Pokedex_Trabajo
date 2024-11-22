@@ -80,7 +80,7 @@ fun InfoScreen(
         val pokemonName = pokemonInfo.name
         Column {
             Row {
-                Text(text = "Nombre: ${pokemonName.capitalize()}")
+                Text(text = "Nombre: ${pokemonName.replaceFirstChar { it.uppercase() }}")
             }
             Row {
                 Text(text = "ID: ${pokemonInfo.id}")
@@ -92,10 +92,10 @@ fun InfoScreen(
                 Text(text = "Peso: ${pokemonInfo.weight}")
             }
             Row {
-                Text(text = "Tipo: ${pokemonInfo.types.joinToString { it.type.name }}")
+                Text(text = "Tipo: ${pokemonInfo.types.joinToString { it.type.name }.replaceFirstChar { it.uppercase() }}")
             }
             Row {
-                Text(text = "Habilidades: ${pokemonInfo.abilities.joinToString { it.ability.name }}")
+                Text(text = "Habilidades: ${pokemonInfo.abilities.joinToString { it.ability.name }.replaceFirstChar { it.uppercase() }}")
             }
             Column(
                 modifier = Modifier.padding(8.dp)
@@ -103,7 +103,7 @@ fun InfoScreen(
                 Text(text = "Estadísticas: ", modifier = Modifier.padding(bottom = 8.dp))
                 pokemonInfo.stats.forEach { stat ->
                     Text(
-                        text = "${stat.stat.name.capitalize()}: ${stat.base_stat}",
+                        text = "${stat.stat.name.replaceFirstChar { it.uppercase() }}: ${stat.base_stat}",
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
                 }

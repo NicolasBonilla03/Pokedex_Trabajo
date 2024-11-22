@@ -85,7 +85,7 @@ fun PokedexScreen(
                     ) { region ->
                         Column {
                             Row {
-                                Text(text = region.name.capitalizeFirstLetter())
+                                Text(text = region.name.replaceFirstChar { it.uppercase() })
                             }
                             Button(onClick = { onClickRegion(region.url.split("/").last().toInt()) }) { // Pasar el ID de la región
                                 Text(text = stringResource(id = R.string.go_to_region))

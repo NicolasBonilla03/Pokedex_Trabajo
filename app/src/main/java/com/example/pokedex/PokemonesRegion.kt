@@ -91,9 +91,6 @@ class PokemonesRegion : ComponentActivity() {
     }
 }
 
-fun String.capitalizeFirstLetter(): String {
-    return this.lowercase().replaceFirstChar { it.uppercase() }
-}
 
 
 
@@ -121,7 +118,7 @@ fun PokemonList(
 
                     }
                     Row {
-                        Text(text = "Nombre: ${pokemon.pokemon_species.name.capitalizeFirstLetter()}")
+                        Text(text = "Nombre: ${pokemon.pokemon_species.name.replaceFirstChar { it.uppercase() }}")
                     }
 
                     Button(onClick = {
