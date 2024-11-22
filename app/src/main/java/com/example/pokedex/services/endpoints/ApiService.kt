@@ -3,6 +3,7 @@ package com.example.pokedex.services.endpoints
 import com.example.pokedex.services.models.EvolutionChain
 import com.example.pokedex.services.models.PokedexResponse
 import com.example.pokedex.services.models.PokemonInfo
+import com.example.pokedex.services.models.PokemonSpeciesInfo
 import com.example.pokedex.services.models.Region
 import com.example.pokedex.services.models.RegionResponse
 import retrofit2.Response
@@ -26,4 +27,9 @@ interface ApiService {
     // Obtener la cadena de evolución de un Pokémon
     @GET("evolution-chain/{id}/")
     suspend fun getEvolutionChain(@Path("id") id: Int): Response<EvolutionChain>
+
+    // ApiService
+    @GET("pokemon-species/{nameOrId}/")
+    suspend fun getPokemonSpecies(@Path("nameOrId") nameOrId: String): Response<PokemonSpeciesInfo>
+
 }

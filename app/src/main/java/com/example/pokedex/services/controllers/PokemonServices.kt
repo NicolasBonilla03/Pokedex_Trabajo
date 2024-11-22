@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.pokedex.services.endpoints.ApiService
 import com.example.pokedex.services.models.PokemonEntry
 import com.example.pokedex.services.models.PokemonInfo
+import com.example.pokedex.services.models.PokemonSpeciesInfo
 import com.example.pokedex.services.models.Region
 import com.example.pokedex.services.models.RegionResponse
 import com.example.pokedex.services.models.Sprites
@@ -81,4 +82,28 @@ class RegionService: ApiClient() {
         }
             }
     }
+    fun getPokemonSpecies(
+        nameOrId: String,
+        success: (speciesInfo: PokemonSpeciesInfo) -> Unit,
+        error: () -> Unit
+    ) {
+        serviceScope.launch(Dispatchers.IO) {
+            try {
+                val response = getRetrofit()
+                    .create(ApiService::class.java)
+                    .getPokemonSpecies(nameOrId)
+                val data = response.body()
+                if (data != null) {
+                    success(data)
+                } else {
+                    success(PokemonSpeciesInfo(emptyList()))
+                }
+            } catch (e: Exception) {
+                println(e)
+                error()
+            }
+        }
+    }
+
+
 }

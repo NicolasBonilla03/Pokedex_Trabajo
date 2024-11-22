@@ -2,6 +2,7 @@ package com.example.pokedex.services.driverAdapters
 import com.example.pokedex.services.controllers.RegionService
 import com.example.pokedex.services.models.PokemonEntry
 import com.example.pokedex.services.models.PokemonInfo
+import com.example.pokedex.services.models.PokemonSpeciesInfo
 import com.example.pokedex.services.models.Region
 import com.example.pokedex.services.models.RegionResponse
 import kotlinx.coroutines.runBlocking
@@ -54,5 +55,23 @@ class PokemonDriverAdapter {
         )
 
     }
+
+    fun PokemonSpeciesInfo(
+        nameOrId: String,
+        loadData: (speciesInfo: PokemonSpeciesInfo) -> Unit,
+        errorData: () -> Unit
+    ) {
+        this.service.getPokemonSpecies(
+            nameOrId = nameOrId,
+            success = {
+                loadData(it)
+            },
+            error = {
+                errorData()
+            }
+        )
+    }
+
+
 
 }

@@ -38,3 +38,17 @@ data class NamedResource(
     val name: String, // Nombre del recurso
     val url: String   // URL del recurso
 )
+
+data class FlavorTextEntry(
+    val flavor_text: String,
+    val language: Language
+)
+
+data class Language(
+    val name: String
+)
+
+data class PokemonSpeciesInfo(
+    val flavor_text_entries: List<FlavorTextEntry>
+)
+
