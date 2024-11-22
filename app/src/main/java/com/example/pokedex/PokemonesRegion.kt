@@ -145,7 +145,7 @@ class PokemonesRegion : ComponentActivity() {
 
         Column(modifier = modifier) {
             Button(onClick = { expanded.value = true }) {
-                Text(text = selectedType.value)
+                Text(text = selectedType.value.replaceFirstChar { it.uppercase() })
             }
             DropdownMenu(
                 expanded = expanded.value,
