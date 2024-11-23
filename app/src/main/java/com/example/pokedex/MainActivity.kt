@@ -1,5 +1,6 @@
 package com.example.pokedex
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -67,6 +68,10 @@ class MainActivity : ComponentActivity() {
             WindowCompat.setDecorFitsSystemWindows(window, false)
             window.statusBarColor = PokedexColors.DarkGray.toArgb()
             WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
+            window.navigationBarColor = Color.Transparent.toArgb()
+            WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightNavigationBars = false
+
+
             PokedexTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     PokedexScreen(
@@ -88,6 +93,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun PokedexScreen(
     regions: List<Region>,
@@ -96,12 +102,13 @@ fun PokedexScreen(
 ) {
     Scaffold(
         modifier = Modifier
-            .padding(WindowInsets.systemBars.asPaddingValues()),
+            .padding(WindowInsets.systemBars.asPaddingValues())
+            .background(color = PokedexColors.PrimaryRed), // Fondo rojo,
         topBar = { PokedexHeader() }
-    ) { innerPadding ->
+    ){
         Column(
             modifier = Modifier
-                .padding(innerPadding)
+
                 .fillMaxSize()
                 .background(color = PokedexColors.PrimaryRed) // Fondo rojo
         ) {

@@ -52,8 +52,10 @@ class InfoPokemon : ComponentActivity() {
 
         setContent {
             WindowCompat.setDecorFitsSystemWindows(window, false)
-            window.statusBarColor = PokedexColors.PrimaryRed.toArgb()
+            window.statusBarColor = PokedexColors.DarkGray.toArgb()
             WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
+            window.navigationBarColor = Color.Transparent.toArgb()
+            WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightNavigationBars = false
             PokedexTheme {
                 val pokemonInfo = remember { mutableStateOf<PokemonInfo?>(null) }
                 val speciesInfo = remember { mutableStateOf<PokemonSpeciesInfo?>(null) }

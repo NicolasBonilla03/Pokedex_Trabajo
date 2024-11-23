@@ -1,5 +1,6 @@
 package com.example.pokedex
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -85,6 +86,7 @@ class PokemonesRegion : ComponentActivity() {
         "Blueberry" to 1011..1017,
     )
 
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -96,6 +98,9 @@ class PokemonesRegion : ComponentActivity() {
             WindowCompat.setDecorFitsSystemWindows(window, false)
             window.statusBarColor = PokedexColors.DarkGray.toArgb()
             WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
+            window.navigationBarColor = Color.Transparent.toArgb()
+            WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightNavigationBars = true
+
             PokedexTheme {
                 val regionPokemonList = remember { mutableStateOf<List<PokemonEntry>>(emptyList()) }
                 val filteredPokemonList = remember { mutableStateOf<List<PokemonEntry>>(emptyList()) }
@@ -172,10 +177,10 @@ class PokemonesRegion : ComponentActivity() {
                             )
                         }
                     }
-                ) { innerPadding ->
+                ) {
                     Column(
                         modifier = Modifier
-                            .padding(innerPadding)
+
                             .background(localColorBackground)
                             .fillMaxSize()
                     ) {
