@@ -1,5 +1,6 @@
 package com.example.pokedex
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -50,6 +51,7 @@ val localColorBackground = Color(0xFF81C784) // Verde claro
 class InfoPokemon : ComponentActivity() {
     private val driverAdapter = PokemonDriverAdapter()
 
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -98,13 +100,12 @@ class InfoPokemon : ComponentActivity() {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(WindowInsets.systemBars.asPaddingValues())
-                ) { innerPadding ->
+                ) {
                     InfoScreen(
                         pokemonInfo = pokemonInfo.value,
                         speciesInfo = speciesInfo.value,
                         evolChain = evolutionChain.value,
-                        name = pokemonId ?: "",
-                        modifier = Modifier.padding(innerPadding)
+
                     )
                 }
 
@@ -398,8 +399,7 @@ fun GreetingPreview3() {
             pokemonInfo = null,
             speciesInfo = null,
             evolChain = null,
-            name = "Pikachu",
-            modifier = Modifier.padding(16.dp)
+
         )
 }
 }
