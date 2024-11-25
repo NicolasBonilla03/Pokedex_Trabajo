@@ -72,18 +72,25 @@ class InfoPokemon : ComponentActivity() {
                     errorData = { println("Error al cargar la información de la especie.") }
                 )
 
-                Scaffold(modifier = Modifier
-                    .fillMaxSize()
-                    .padding(WindowInsets.systemBars.asPaddingValues()),)
-                { innerPadding ->
+                Scaffold(
+                    topBar = {
+                        TopBarWithBackButton(
+                            title = "Detalles del Pokémon",
+                            onBackClick = { finish() } // Cierra la actividad
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(WindowInsets.systemBars.asPaddingValues())
+                ) { innerPadding ->
                     InfoScreen(
                         pokemonInfo = pokemonInfo.value,
                         speciesInfo = speciesInfo.value,
                         name = pokemonId ?: "",
-                        modifier = Modifier
-                            .padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding)
                     )
                 }
+
             }
         }
     }
@@ -108,6 +115,10 @@ fun InfoScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(PokedexColors.PrimaryRed) // Fondo rojo
+                .padding(
+                    top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding() + 46.dp, // Desplaza hacia abajo
+                    bottom = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()
+                )
         ) {
             // Tarjeta: Nombre e Imágenes
             item {
@@ -261,6 +272,41 @@ fun InfoRow(label: String, value: String) {
         )
     }
 }
+
+@Composable
+fun TopBarWithBackButton(
+    title: String,
+    onBackClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(localColorPrimary) // Fondo verde local
+            .padding(16.dp),
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+    ) {
+        // Botón de volver
+        androidx.compose.material3.Button(
+            onClick = onBackClick,
+            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                containerColor = localColorSecondary, // Fondo azul oscuro
+                contentColor = Color.White           // Texto blanco
+            ),
+            modifier = Modifier.padding(end = 16.dp)
+        ) {
+            Text("← Volver", style = MaterialTheme.typography.bodyMedium)
+        }
+
+        // Título
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge,
+            color = Color.White,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
 
 
 @Preview(showBackground = true)

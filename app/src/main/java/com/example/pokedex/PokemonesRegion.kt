@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -163,17 +164,21 @@ class PokemonesRegion : ComponentActivity() {
                         .fillMaxSize()
                         .padding(WindowInsets.systemBars.asPaddingValues()),
                     topBar = {
+
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(PokedexColors.DarkGray)
-                                .padding(vertical = 16.dp),
+                                .background(PokedexColors.DarkGray),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = regionName,
                                 color = PokedexColors.Gold, // Amarillo
                                 style = MaterialTheme.typography.headlineLarge
+                            )
+                            TopBarWithBackButton(
+                                title = regionName,
+                                onBackClick = { finish() }
                             )
                         }
                     }
@@ -373,6 +378,52 @@ class PokemonesRegion : ComponentActivity() {
             }
         }
     }
+
+    @Composable
+    fun TopBarWithBackButton(
+        title: String,
+        onBackClick: () -> Unit
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(PokedexColors.DarkGray)
+                .padding(vertical = 16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                // Botón de retroceso con color personalizado
+                Button(
+                    onClick = onBackClick,
+                    modifier = Modifier.padding(start = 16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = PokedexColors.Gold, // Fondo dorado
+                        contentColor = Color.Black          // Texto/ícono negro
+                    )
+                ) {
+                    Text("Volver", style = MaterialTheme.typography.titleMedium)
+                }
+
+                // Título centrado
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = title,
+                        color = PokedexColors.Gold,
+                        style = MaterialTheme.typography.headlineLarge
+                    )
+                }
+            }
+        }
+    }
+
+
+
 
     private fun extractPokemonNumber(url: String): Int {
         return url.trimEnd('/').split('/').last().toInt()
