@@ -30,7 +30,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import coil.compose.AsyncImage
@@ -47,6 +46,7 @@ val localColorPrimary = Color(0xFF00695C) // Verde local
 val localColorSecondary = Color(0xFF00363A) // Azul oscuro
 val localColorBackground = Color(0xFF81C784) // Verde claro
 
+@Suppress("DEPRECATION")
 class InfoPokemon : ComponentActivity() {
     private val driverAdapter = PokemonDriverAdapter()
 
@@ -118,8 +118,6 @@ fun InfoScreen(
     pokemonInfo: PokemonInfo?,
     speciesInfo: PokemonSpeciesInfo?,
     evolChain: EvolutionChain?,
-    name: String,
-    modifier: Modifier = Modifier
 ) {
     if (pokemonInfo == null) {
         Text(
@@ -338,7 +336,7 @@ fun TopBarWithBackButton(
 fun EvolutionChainDisplay(evolChain: EvolutionChain) {
     Column {
         Text(
-            text = "Evoluciones de: ${evolChain.chain.species.name.replaceFirstChar { it.uppercase() }}",
+            text = "Evoluciones: ",
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(bottom = 8.dp)
         )
