@@ -1,5 +1,6 @@
 package com.example.pokedex
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -26,12 +27,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import coil.compose.AsyncImage
 import com.example.pokedex.services.driverAdapters.PokemonDriverAdapter
+import com.example.pokedex.services.models.EvolutionChain
+import com.example.pokedex.services.models.EvolutionChainDetail
 import com.example.pokedex.services.models.PokemonInfo
 import com.example.pokedex.services.models.PokemonSpeciesInfo
 import com.example.pokedex.ui.theme.PokedexColors
@@ -59,6 +64,7 @@ class InfoPokemon : ComponentActivity() {
             PokedexTheme {
                 val pokemonInfo = remember { mutableStateOf<PokemonInfo?>(null) }
                 val speciesInfo = remember { mutableStateOf<PokemonSpeciesInfo?>(null) }
+                val evolutionChain = remember { mutableStateOf<EvolutionChain?>(null) }
 
                 driverAdapter.PokemonInfo(
                     nameOrId = pokemonId ?: "",
@@ -71,6 +77,16 @@ class InfoPokemon : ComponentActivity() {
                     loadData = { speciesInfo.value = it },
                     errorData = { println("Error al cargar la información de la especie.") }
                 )
+                if (speciesInfo.value != null && evolutionChain.value == null) {
+                    val evolutionId = speciesInfo.value?.evolution_chain?.url?.split("/")?.getOrNull(6)?.toInt()
+                    if (evolutionId != null) {
+                        driverAdapter.getEvolutionChain(
+                            id = evolutionId,
+                            loadData = { evolutionChain.value = it },
+                            errorData = { println("Error al cargar la cadena de evolución.") }
+                        )
+                    }
+                }
 
                 Scaffold(
                     topBar = {
@@ -86,6 +102,7 @@ class InfoPokemon : ComponentActivity() {
                     InfoScreen(
                         pokemonInfo = pokemonInfo.value,
                         speciesInfo = speciesInfo.value,
+                        evolChain = evolutionChain.value,
                         name = pokemonId ?: "",
                         modifier = Modifier.padding(innerPadding)
                     )
@@ -100,6 +117,7 @@ class InfoPokemon : ComponentActivity() {
 fun InfoScreen(
     pokemonInfo: PokemonInfo?,
     speciesInfo: PokemonSpeciesInfo?,
+    evolChain: EvolutionChain?,
     name: String,
     modifier: Modifier = Modifier
 ) {
@@ -224,6 +242,16 @@ fun InfoScreen(
                     }
                 }
             }
+            if (evolChain != null) {
+                item {
+                    CardWithPadding(
+                        backgroundColor = PokedexColors.LightGray, // Gris claro
+                        contentColor = Color.Black
+                    ){
+                    EvolutionChainDisplay(evolChain)
+                }
+                }
+            }
         }
     }
 }
@@ -306,6 +334,61 @@ fun TopBarWithBackButton(
         )
     }
 }
+@Composable
+fun EvolutionChainDisplay(evolChain: EvolutionChain) {
+    Column {
+        Text(
+            text = "Evoluciones de: ${evolChain.chain.species.name.replaceFirstChar { it.uppercase() }}",
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        RenderEvolutionChain(chain = evolChain.chain)
+    }
+}
+@Composable
+fun RenderEvolutionChain(chain: EvolutionChainDetail) {
+    val context = LocalContext.current
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = chain.species.name.replaceFirstChar { it.uppercase() },
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(1f)
+        )
+        AsyncImage(
+            model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${getPokemonIdFromUrl(chain.species.url)}.png",
+            contentDescription = "Imagen de ${chain.species.name}",
+            modifier = Modifier.size(60.dp)
+        )
+        androidx.compose.material3.Button(
+            onClick = {
+                val intent = Intent(context, InfoPokemon::class.java).apply {
+                    putExtra("POKEMON_ID", getPokemonIdFromUrl(chain.species.url).toString())
+                }
+                context.startActivity(intent)
+            },
+            modifier = Modifier.padding(start = 8.dp)
+        ) {
+            Text("Ver")
+        }
+    }
+
+    chain.evolves_to?.forEach { nextChain ->
+        RenderEvolutionChain(chain = nextChain)
+    }
+}
+
+
+fun getPokemonIdFromUrl(url: String): Int {
+    return url.split("/").getOrNull(6)?.toInt() ?: 0
+}
+
+
 
 
 
@@ -316,6 +399,7 @@ fun GreetingPreview3() {
         InfoScreen(
             pokemonInfo = null,
             speciesInfo = null,
+            evolChain = null,
             name = "Pikachu",
             modifier = Modifier.padding(16.dp)
         )

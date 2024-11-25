@@ -49,6 +49,7 @@ data class Language(
 )
 
 data class PokemonSpeciesInfo(
-    val flavor_text_entries: List<FlavorTextEntry>
+    val flavor_text_entries: List<FlavorTextEntry>,
+    val evolution_chain: PokemonSpecies
 )
 

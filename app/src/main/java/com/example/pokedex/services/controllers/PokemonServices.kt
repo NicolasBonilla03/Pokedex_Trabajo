@@ -2,8 +2,10 @@ package com.example.pokedex.services.controllers
 import ApiClient
 
 import com.example.pokedex.services.endpoints.ApiService
+import com.example.pokedex.services.models.EvolutionChain
 import com.example.pokedex.services.models.PokemonEntry
 import com.example.pokedex.services.models.PokemonInfo
+import com.example.pokedex.services.models.PokemonSpecies
 import com.example.pokedex.services.models.PokemonSpeciesInfo
 import com.example.pokedex.services.models.Sprites
 import com.example.pokedex.services.models.TypeResponse
@@ -74,7 +76,7 @@ class RegionService: ApiClient() {
                 if (data != null) {
                     success(data)
                 } else {
-                    success(PokemonSpeciesInfo(emptyList()))
+                    success(PokemonSpeciesInfo(emptyList(), PokemonSpecies("", "")))
                 }
             } catch (e: Exception) {
                 println(e)
@@ -103,8 +105,28 @@ class RegionService: ApiClient() {
             }
         }
     }
+    fun getEvolutionChain(
+        id: Int,
+        success: (evolutionChain: EvolutionChain) -> Unit,
+        error: () -> Unit
+    ) {
+        serviceScope.launch(Dispatchers.IO) {
+            try {
+                val response = getRetrofit()
+                    .create(ApiService::class.java)
+                    .getEvolutionChain(id)
 
-
-
+                val data = response.body()
+                if (data != null) {
+                    success(data)
+                } else {
+                    error()
+                }
+            } catch (e: Exception) {
+                println("Error al obtener la cadena de evolución: $e")
+                error()
+            }
+        }
+    }
 
 }

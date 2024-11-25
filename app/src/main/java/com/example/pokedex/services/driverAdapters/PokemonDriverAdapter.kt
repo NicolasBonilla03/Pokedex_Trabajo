@@ -1,5 +1,6 @@
 package com.example.pokedex.services.driverAdapters
 import com.example.pokedex.services.controllers.RegionService
+import com.example.pokedex.services.models.EvolutionChain
 import com.example.pokedex.services.models.PokemonEntry
 import com.example.pokedex.services.models.PokemonInfo
 import com.example.pokedex.services.models.PokemonSpecies
@@ -76,6 +77,22 @@ class PokemonDriverAdapter {
             }
         )
     }
+    fun getEvolutionChain(
+        id: Int,
+        loadData: (evolutionChain: EvolutionChain) -> Unit,
+        errorData: () -> Unit
+    ) {
+        this.service.getEvolutionChain(
+            id = id,
+            success = {
+                loadData(it)
+            },
+            error = {
+                errorData()
+            }
+        )
+    }
+
 
     private fun extractPokemonNumber(url: String): Int {
         return url.trimEnd('/').split('/').last().toInt()
