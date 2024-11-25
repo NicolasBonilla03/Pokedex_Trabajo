@@ -108,7 +108,7 @@ fun PokedexScreen(
     ){
         Column(
             modifier = Modifier
-
+                .padding(it)
                 .fillMaxSize()
                 .background(color = PokedexColors.PrimaryRed) // Fondo rojo
         ) {

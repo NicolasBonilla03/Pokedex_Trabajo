@@ -180,23 +180,46 @@ class PokemonesRegion : ComponentActivity() {
                 ) {
                     Column(
                         modifier = Modifier
-
                             .background(localColorBackground)
                             .fillMaxSize()
                     ) {
-                        // Selector de tipo
-                        TypeSelector(
-                            types = types.value,
-                            onTypeSelected = { type -> filterByType(type) },
-                            modifier = Modifier.padding(8.dp)
-                        )
+                        // Encabezado con el nombre de la región
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(PokedexColors.DarkGray)
+                                .padding(vertical = 16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = regionName,
+                                color = PokedexColors.Gold,
+                                style = MaterialTheme.typography.headlineLarge
+                            )
+                        }
 
-                        // Barra de búsqueda
-                        SearchBar(
-                            query = searchQuery.value,
-                            onQueryChange = { query -> filterBySearch(query) },
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
+                        // Row para TypeSelector y SearchBar
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            // Selector de tipo
+                            TypeSelector(
+                                types = types.value,
+                                onTypeSelected = { type -> filterByType(type) },
+                                modifier = Modifier.weight(1f)
+                            )
+
+                            // Barra de búsqueda
+                            SearchBar(
+                                query = searchQuery.value,
+                                onQueryChange = { query -> filterBySearch(query) },
+                                modifier = Modifier.weight(2f)
+                            )
+                        }
 
                         // Lista de Pokémon
                         LazyColumn(
@@ -219,6 +242,7 @@ class PokemonesRegion : ComponentActivity() {
                             }
                         }
                     }
+
                 }
             }
         }
