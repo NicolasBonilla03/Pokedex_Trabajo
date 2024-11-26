@@ -10,6 +10,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -19,6 +20,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
@@ -146,7 +149,8 @@ fun InfoScreen(
                 .fillMaxSize()
                 .background(PokedexColors.PrimaryRed) // Fondo rojo
                 .padding(
-                    top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding() + 46.dp, // Desplaza hacia abajo
+                    top = WindowInsets.systemBars.asPaddingValues()
+                        .calculateTopPadding() + 46.dp, // Desplaza hacia abajo
                     bottom = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()
                 )
         ) {
@@ -194,34 +198,34 @@ fun InfoScreen(
                     Text("Agregar a Favoritos")
                 }
 
-            if (showDialog.value) {
-                AlertDialog(
-                    onDismissRequest = { showDialog.value = false },
-                    title = { Text("¡Hecho!") },
-                    text = { Text("Pokémon agregado a favoritos.") },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                showDialog.value = false
+                if (showDialog.value) {
+                    AlertDialog(
+                        onDismissRequest = { showDialog.value = false },
+                        title = { Text("¡Hecho!") },
+                        text = { Text("Pokémon agregado a favoritos.") },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    showDialog.value = false
+                                }
+                            ) {
+                                Text("Cerrar")
                             }
-                        ) {
-                            Text("Cerrar")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(
-                            onClick = {
-                                // Ir a la actividad de favoritos
-                                val intent = Intent(context, FavoritesActivity::class.java)
-                                context.startActivity(intent)
-                                showDialog.value = false
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = {
+                                    // Ir a la actividad de favoritos
+                                    val intent = Intent(context, FavoritesActivity::class.java)
+                                    context.startActivity(intent)
+                                    showDialog.value = false
+                                }
+                            ) {
+                                Text("Ver Favoritos")
                             }
-                        ) {
-                            Text("Ver Favoritos")
                         }
-                    }
-                )
-            }
+                    )
+                }
             }
             // Tarjeta: Información Básica
             item {
@@ -304,7 +308,7 @@ fun InfoScreen(
                     CardWithPadding(
                         backgroundColor = PokedexColors.LightGray, // Gris claro
                         contentColor = Color.Black
-                    ){
+                    ) {
                         EvolutionChainDisplay(evolChain)
                     }
                 }
@@ -313,6 +317,9 @@ fun InfoScreen(
         }
     }
 }
+
+
+
 
 @Composable
 fun CardWithPadding(
@@ -323,8 +330,7 @@ fun CardWithPadding(
     androidx.compose.material3.Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
-
+            .padding(8.dp), // Reducimos el padding para ajustarlo al grid
         colors = CardDefaults.cardColors(
             containerColor = backgroundColor,
             contentColor = contentColor
@@ -337,6 +343,29 @@ fun CardWithPadding(
         }
     }
 }
+
+@Composable
+fun GridDisplay(cards: List<@Composable () -> Unit>) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2), // Dos columnas
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp), // Espaciado general
+        contentPadding = PaddingValues(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp), // Espaciado horizontal entre columnas
+        verticalArrangement = Arrangement.spacedBy(8.dp) // Espaciado vertical entre filas
+    ) {
+        items(cards.size) { index ->
+            CardWithPadding(
+                backgroundColor = Color.LightGray, // Puedes cambiar el color
+                contentColor = Color.Black
+            ) {
+                cards[index]() // Renderiza el contenido de cada tarjeta
+            }
+        }
+    }
+}
+
 
 @Composable
 fun InfoRow(label: String, value: String) {

@@ -19,9 +19,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -228,10 +232,13 @@ class PokemonesRegion : ComponentActivity() {
                         }
 
                         // Lista de Pokémon
-                        LazyColumn(
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2), // Cambiar a una cuadrícula con 2 columnas
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(16.dp)
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp), // Espaciado entre columnas
+                            verticalArrangement = Arrangement.spacedBy(8.dp) // Espaciado entre filas
                         ) {
                             items(
                                 items = filteredPokemonList.value,
@@ -241,12 +248,16 @@ class PokemonesRegion : ComponentActivity() {
                                     pokemon = pokemon,
                                     onClick = {
                                         val intent = Intent(this@PokemonesRegion, InfoPokemon::class.java)
-                                        intent.putExtra("POKEMON_ID", extractPokemonNumber(pokemon.pokemon_species.url).toString())
+                                        intent.putExtra(
+                                            "POKEMON_ID",
+                                            extractPokemonNumber(pokemon.pokemon_species.url).toString()
+                                        )
                                         startActivity(intent)
                                     }
                                 )
                             }
                         }
+
                     }
 
                 }
@@ -345,40 +356,61 @@ class PokemonesRegion : ComponentActivity() {
             Text(text = "No hay Pokémon disponibles en esta región.")
             return
         } else {
-            LazyColumn(modifier = modifier) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2), // Dos columnas
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(8.dp), // Espaciado general
+                horizontalArrangement = Arrangement.spacedBy(8.dp), // Espaciado horizontal entre columnas
+                verticalArrangement = Arrangement.spacedBy(8.dp) // Espaciado vertical entre filas
+            ) {
                 items(
                     items = pokemonEntries,
                     key = { it.entry_number }
                 ) { pokemon ->
-                    Column {
-                        Row {
-                            val pokemonNumber = extractPokemonNumber(pokemon.pokemon_species.url)
-                            Text(text = "ID: $pokemonNumber ")
-
-                        }
-                        Row {
-                            Text(text = "Nombre: ${pokemon.pokemon_species.name.replaceFirstChar { it.uppercase() }}")
-                        }
-                        Row {
-                            val pokemonEntryNumber = extractPokemonNumber(pokemon.pokemon_species.url)
-                            AsyncImage(
-                                model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonEntryNumber}.png",
-                                contentDescription = "Imagen del Pokémon"
-                            )
-                        }
-
-                        Button(onClick = {
-                            val pokemonNumber = extractPokemonNumber(pokemon.pokemon_species.url)
-                            onClickPokemon(pokemonNumber.toString())
-                        }) {
-
-                            Text(text = "Ver detalles")
+                    androidx.compose.material3.Card(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.LightGray, // Color del fondo de la carta
+                            contentColor = Color.Black
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            Row {
+                                val pokemonNumber = extractPokemonNumber(pokemon.pokemon_species.url)
+                                Text(text = "ID: $pokemonNumber ")
+                            }
+                            Row {
+                                Text(text = "Nombre: ${pokemon.pokemon_species.name.replaceFirstChar { it.uppercase() }}")
+                            }
+                            Row {
+                                val pokemonEntryNumber = extractPokemonNumber(pokemon.pokemon_species.url)
+                                AsyncImage(
+                                    model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonEntryNumber}.png",
+                                    contentDescription = "Imagen del Pokémon",
+                                    modifier = Modifier.size(100.dp) // Tamaño de la imagen
+                                )
+                            }
+                            Button(
+                                onClick = {
+                                    val pokemonNumber = extractPokemonNumber(pokemon.pokemon_species.url)
+                                    onClickPokemon(pokemonNumber.toString())
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(text = "Ver detalles")
+                            }
                         }
                     }
                 }
             }
         }
     }
+
 
     @Composable
     fun TopBarWithBackButton(
