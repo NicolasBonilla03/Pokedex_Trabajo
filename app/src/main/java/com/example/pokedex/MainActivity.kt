@@ -1,7 +1,10 @@
 package com.example.pokedex
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,12 +22,15 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -68,8 +74,15 @@ class MainActivity : ComponentActivity() {
             window.navigationBarColor = Color.Transparent.toArgb()
             WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightNavigationBars = false
 
-
             PokedexTheme {
+                val isConnected = isInternetAvailable()
+                if (!isConnected) {
+                    ShowNoInternetDialog(
+                        onDismiss = { finish() },
+                        onGoToFavorites = { goToFavorites() }
+                    )
+                }
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     PokedexScreen(
                         regions = regions,
@@ -78,10 +91,15 @@ class MainActivity : ComponentActivity() {
                         goToFavorites = { goToFavorites() }
                     )
                 }
-
-                PokedexScreen(regions = regions, onClickRegion = { goToRegion(it) }, goToFavorites = { goToFavorites() })
+            }
         }
     }
+
+    private fun isInternetAvailable(): Boolean {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork
+        val capabilities = connectivityManager.getNetworkCapabilities(network)
+        return capabilities != null && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
     private fun goToRegion(regionId: Int) {
@@ -89,13 +107,46 @@ class MainActivity : ComponentActivity() {
         intent.putExtra("REGION_ID", regionId)
         startActivity(intent)
     }
+
     private fun goToFavorites() {
         val intent = Intent(this, FavoritesActivity::class.java)
         startActivity(intent)
     }
 }
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+fun ShowNoInternetDialog(onDismiss: () -> Unit, onGoToFavorites: () -> Unit) {
+    val openDialog = remember { mutableStateOf(true) }
+
+    if (openDialog.value) {
+        AlertDialog(
+            onDismissRequest = { openDialog.value = false },
+            title = {
+                Text(text = "Sin conexión a Internet")
+            },
+            text = {
+                Text("No se puede acceder a la información sin conexión a Internet.")
+            },
+            confirmButton = {
+                Button(
+                    onClick = onGoToFavorites,
+                    colors = ButtonDefaults.buttonColors(containerColor = PokedexColors.Blue)
+                ) {
+                    Text("Ir a Favoritos", color = Color.White)
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = onDismiss,
+                    colors = ButtonDefaults.buttonColors(containerColor = PokedexColors.PrimaryRed)
+                ) {
+                    Text("Cerrar", color = Color.White)
+                }
+            }
+        )
+    }
+}
+
 @Composable
 fun PokedexScreen(
     regions: List<Region>,
@@ -106,19 +157,19 @@ fun PokedexScreen(
     Scaffold(
         modifier = Modifier
             .padding(WindowInsets.systemBars.asPaddingValues())
-            .background(color = PokedexColors.PrimaryRed), // Fondo rojo,
+            .background(color = PokedexColors.PrimaryRed),
         topBar = { PokedexHeader(goToFavorites) }
-    ){
+    ) {
         Column(
             modifier = Modifier
                 .padding(it)
                 .fillMaxSize()
-                .background(color = PokedexColors.PrimaryRed) // Fondo rojo
+                .background(color = PokedexColors.PrimaryRed)
         ) {
             LazyColumn(
                 modifier = Modifier
                     .padding(16.dp)
-                    .background(PokedexColors.DarkGray, shape = RoundedCornerShape(16.dp)) // Fondo gris oscuro
+                    .background(PokedexColors.DarkGray, shape = RoundedCornerShape(16.dp))
                     .padding(16.dp)
             ) {
                 items(
@@ -137,18 +188,18 @@ fun PokedexHeader(goToFavorites: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(PokedexColors.DarkGray) // Fondo gris oscuro
+            .background(PokedexColors.DarkGray)
             .padding(16.dp),
         horizontalArrangement = Arrangement.Center
     ) {
         Text(
             text = "Pokédex",
-            color = PokedexColors.Gold, // Amarillo
+            color = PokedexColors.Gold,
             style = MaterialTheme.typography.headlineLarge
         )
         Button(
             onClick = { goToFavorites() },
-            colors = ButtonDefaults.buttonColors(containerColor = PokedexColors.Blue), // Azul
+            colors = ButtonDefaults.buttonColors(containerColor = PokedexColors.Blue),
             modifier = Modifier.padding(start = 64.dp)
         ) {
             Text(
@@ -166,7 +217,7 @@ fun RegionItem(region: Region, onClickRegion: (Int) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .background(PokedexColors.LightGray, shape = RoundedCornerShape(12.dp)) // Fondo gris claro
+            .background(PokedexColors.LightGray, shape = RoundedCornerShape(12.dp))
             .padding(16.dp),
     ) {
         Text(
@@ -177,7 +228,7 @@ fun RegionItem(region: Region, onClickRegion: (Int) -> Unit) {
         )
         Button(
             onClick = { onClickRegion(region.url.split("/").last().toInt()) },
-            colors = ButtonDefaults.buttonColors(containerColor = PokedexColors.Blue) // Azul
+            colors = ButtonDefaults.buttonColors(containerColor = PokedexColors.Blue)
         ) {
             Text(
                 text = "Ir a región",
