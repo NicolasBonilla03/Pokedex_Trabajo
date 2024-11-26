@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,8 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
@@ -77,11 +74,12 @@ class MainActivity : ComponentActivity() {
                     PokedexScreen(
                         regions = regions,
                         modifier = Modifier.padding(innerPadding),
-                        onClickRegion = { goToRegion(it) }
+                        onClickRegion = { goToRegion(it) },
+                        goToFavorites = { goToFavorites() }
                     )
                 }
 
-                PokedexScreen(regions = regions, onClickRegion = { goToRegion(it) })
+                PokedexScreen(regions = regions, onClickRegion = { goToRegion(it) }, goToFavorites = { goToFavorites() })
         }
     }
     }
@@ -91,6 +89,10 @@ class MainActivity : ComponentActivity() {
         intent.putExtra("REGION_ID", regionId)
         startActivity(intent)
     }
+    private fun goToFavorites() {
+        val intent = Intent(this, FavoritesActivity::class.java)
+        startActivity(intent)
+    }
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -98,13 +100,14 @@ class MainActivity : ComponentActivity() {
 fun PokedexScreen(
     regions: List<Region>,
     modifier: Modifier = Modifier,
-    onClickRegion: (Int) -> Unit
+    onClickRegion: (Int) -> Unit,
+    goToFavorites: () -> Unit
 ) {
     Scaffold(
         modifier = Modifier
             .padding(WindowInsets.systemBars.asPaddingValues())
             .background(color = PokedexColors.PrimaryRed), // Fondo rojo,
-        topBar = { PokedexHeader() }
+        topBar = { PokedexHeader(goToFavorites) }
     ){
         Column(
             modifier = Modifier
@@ -130,7 +133,7 @@ fun PokedexScreen(
 }
 
 @Composable
-fun PokedexHeader() {
+fun PokedexHeader(goToFavorites: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -143,6 +146,17 @@ fun PokedexHeader() {
             color = PokedexColors.Gold, // Amarillo
             style = MaterialTheme.typography.headlineLarge
         )
+        Button(
+            onClick = { goToFavorites() },
+            colors = ButtonDefaults.buttonColors(containerColor = PokedexColors.Blue), // Azul
+            modifier = Modifier.padding(start = 64.dp)
+        ) {
+            Text(
+                text = "Favoritos",
+                fontSize = 20.sp,
+                color = Color.White
+            )
+        }
     }
 }
 
@@ -174,15 +188,4 @@ fun RegionItem(region: Region, onClickRegion: (Int) -> Unit) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    PokedexScreen(
-        regions = listOf(
-            Region("Kanto", "https://pokeapi.co/api/v2/pokedex/2"),
-            Region("Johto", "https://pokeapi.co/api/v2/pokedex/3")
-        ),
-        onClickRegion = {}
-    )
-}
 

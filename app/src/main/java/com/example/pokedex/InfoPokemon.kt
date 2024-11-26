@@ -1,6 +1,7 @@
 package com.example.pokedex
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -18,10 +19,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +45,7 @@ import com.example.pokedex.services.models.PokemonInfo
 import com.example.pokedex.services.models.PokemonSpeciesInfo
 import com.example.pokedex.ui.theme.PokedexColors
 import com.example.pokedex.ui.theme.PokedexTheme
+import com.google.gson.Gson
 
 // Nueva paleta de colores locales
 val localColorPrimary = Color(0xFF00695C) // Verde local
@@ -94,7 +99,8 @@ class InfoPokemon : ComponentActivity() {
                     topBar = {
                         TopBarWithBackButton(
                             title = "Detalles del Pokémon",
-                            onBackClick = { finish() } // Cierra la actividad
+                            onBackClick = { finish() },
+                            gotoMain = { goToMainActivity() }
                         )
                     },
                     modifier = Modifier
@@ -106,20 +112,27 @@ class InfoPokemon : ComponentActivity() {
                         speciesInfo = speciesInfo.value,
                         evolChain = evolutionChain.value,
 
-                    )
+                        )
                 }
 
             }
         }
     }
+    private fun goToMainActivity() {
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
 }
-
 @Composable
 fun InfoScreen(
     pokemonInfo: PokemonInfo?,
     speciesInfo: PokemonSpeciesInfo?,
     evolChain: EvolutionChain?,
 ) {
+    val context = LocalContext.current
+    val sharedPreferences = context.getSharedPreferences("favorites", Context.MODE_PRIVATE)
+    val showDialog = remember { mutableStateOf(false) }
     if (pokemonInfo == null) {
         Text(
             text = "Cargando detalles del Pokémon...",
@@ -165,7 +178,51 @@ fun InfoScreen(
                     }
                 }
             }
+            item {
+                Button(
+                    onClick = {
+                        // Guardar en favoritos
+                        val editor = sharedPreferences.edit()
+                        val pokemonJson = Gson().toJson(pokemonInfo)  // Convertir el Pokémon a JSON
+                        editor.putString(pokemonInfo.id.toString(), pokemonJson)
+                        editor.apply()
 
+                        showDialog.value = true
+                    },
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text("Agregar a Favoritos")
+                }
+
+            if (showDialog.value) {
+                AlertDialog(
+                    onDismissRequest = { showDialog.value = false },
+                    title = { Text("¡Hecho!") },
+                    text = { Text("Pokémon agregado a favoritos.") },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showDialog.value = false
+                            }
+                        ) {
+                            Text("Cerrar")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                // Ir a la actividad de favoritos
+                                val intent = Intent(context, FavoritesActivity::class.java)
+                                context.startActivity(intent)
+                                showDialog.value = false
+                            }
+                        ) {
+                            Text("Ver Favoritos")
+                        }
+                    }
+                )
+            }
+            }
             // Tarjeta: Información Básica
             item {
                 CardWithPadding(
@@ -241,16 +298,18 @@ fun InfoScreen(
                     }
                 }
             }
+
             if (evolChain != null) {
                 item {
                     CardWithPadding(
                         backgroundColor = PokedexColors.LightGray, // Gris claro
                         contentColor = Color.Black
                     ){
-                    EvolutionChainDisplay(evolChain)
-                }
+                        EvolutionChainDisplay(evolChain)
+                    }
                 }
             }
+
         }
     }
 }
@@ -303,7 +362,8 @@ fun InfoRow(label: String, value: String) {
 @Composable
 fun TopBarWithBackButton(
     title: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    gotoMain: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -313,7 +373,7 @@ fun TopBarWithBackButton(
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
     ) {
         // Botón de volver
-        androidx.compose.material3.Button(
+        Button(
             onClick = onBackClick,
             colors = androidx.compose.material3.ButtonDefaults.buttonColors(
                 containerColor = localColorSecondary, // Fondo azul oscuro
@@ -323,7 +383,16 @@ fun TopBarWithBackButton(
         ) {
             Text("← Volver", style = MaterialTheme.typography.bodyMedium)
         }
-
+        Button(
+            onClick = gotoMain,
+            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                containerColor = localColorSecondary, // Fondo azul oscuro
+                contentColor = Color.White           // Texto blanco
+            ),
+            modifier = Modifier.padding(end = 16.dp)
+        ){
+            Text("Ir al menú principal")
+        }
         // Título
         Text(
             text = title,
@@ -364,7 +433,7 @@ fun RenderEvolutionChain(chain: EvolutionChainDetail) {
             contentDescription = "Imagen de ${chain.species.name}",
             modifier = Modifier.size(60.dp)
         )
-        androidx.compose.material3.Button(
+        Button(
             onClick = {
                 val intent = Intent(context, InfoPokemon::class.java).apply {
                     putExtra("POKEMON_ID", getPokemonIdFromUrl(chain.species.url).toString())
@@ -400,6 +469,6 @@ fun GreetingPreview3() {
             speciesInfo = null,
             evolChain = null,
 
-        )
-}
+            )
+    }
 }

@@ -4,5 +4,9 @@
     <string name="title_activity_pokemones_region">Pokemones_Region</string>
     <string name="go_to_region">Ver Region</string>
     <string name="title_activity_info_pokemon">InfoPokemon</string>
+    <string name="title_activity_favorites">FavoritesActivity</string>
+    <string name="title_activity_favorite_info">FavoriteInfo</string>
+    <string name="title_activity_pokemon_details">PokemonDetailsActivity</string>
+    <string name="title_activity_pokemon_detail">PokemonDetailActivity</string>
 
 </resources>

@@ -67,8 +67,8 @@ class PokemonesRegion : ComponentActivity() {
         Region("Blueberry", "https://pokeapi.co/api/v2/pokedex/32"),
         Region("Kitakami", "https://pokeapi.co/api/v2/pokedex/33"),
 
-    )
-//FILTRO PARA QUE SE MUESTREN SOLAMENTE LOS POKEMONES DE ESA REGION
+        )
+    //FILTRO PARA QUE SE MUESTREN SOLAMENTE LOS POKEMONES DE ESA REGION
     private val regionRanges = mapOf(
         "Kanto" to 1..151,
         "Johto" to 152..251,
@@ -363,7 +363,7 @@ class PokemonesRegion : ComponentActivity() {
                             AsyncImage(
                                 model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonEntryNumber}.png",
                                 contentDescription = "Imagen del Pokémon"
-                                )
+                            )
                         }
 
                         Button(onClick = {
