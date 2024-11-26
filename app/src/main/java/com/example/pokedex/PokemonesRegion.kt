@@ -163,6 +163,7 @@ class PokemonesRegion : ComponentActivity() {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(WindowInsets.systemBars.asPaddingValues()),
+
                     topBar = {
 
                         Box(
