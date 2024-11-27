@@ -10,7 +10,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -20,8 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
@@ -36,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -50,7 +46,6 @@ import com.example.pokedex.ui.theme.PokedexColors
 import com.example.pokedex.ui.theme.PokedexTheme
 import com.google.gson.Gson
 
-// Nueva paleta de colores locales
 val localColorPrimary = Color(0xFF00695C) // Verde local
 val localColorSecondary = Color(0xFF00363A) // Azul oscuro
 val localColorBackground = Color(0xFF81C784) // Verde claro
@@ -318,9 +313,6 @@ fun InfoScreen(
     }
 }
 
-
-
-
 @Composable
 fun CardWithPadding(
     backgroundColor: Color,
@@ -343,29 +335,6 @@ fun CardWithPadding(
         }
     }
 }
-
-@Composable
-fun GridDisplay(cards: List<@Composable () -> Unit>) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2), // Dos columnas
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp), // Espaciado general
-        contentPadding = PaddingValues(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp), // Espaciado horizontal entre columnas
-        verticalArrangement = Arrangement.spacedBy(8.dp) // Espaciado vertical entre filas
-    ) {
-        items(cards.size) { index ->
-            CardWithPadding(
-                backgroundColor = Color.LightGray, // Puedes cambiar el color
-                contentColor = Color.Black
-            ) {
-                cards[index]() // Renderiza el contenido de cada tarjeta
-            }
-        }
-    }
-}
-
 
 @Composable
 fun InfoRow(label: String, value: String) {
@@ -483,21 +452,4 @@ fun RenderEvolutionChain(chain: EvolutionChainDetail) {
 
 fun getPokemonIdFromUrl(url: String): Int {
     return url.split("/").getOrNull(6)?.toInt() ?: 0
-}
-
-
-
-
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview3() {
-    PokedexTheme {
-        InfoScreen(
-            pokemonInfo = null,
-            speciesInfo = null,
-            evolChain = null,
-
-            )
-    }
 }

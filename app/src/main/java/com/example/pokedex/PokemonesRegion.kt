@@ -18,14 +18,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -38,7 +35,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -72,6 +68,7 @@ class PokemonesRegion : ComponentActivity() {
         Region("Kitakami", "https://pokeapi.co/api/v2/pokedex/33"),
 
         )
+
     //FILTRO PARA QUE SE MUESTREN SOLAMENTE LOS POKEMONES DE ESA REGION
     private val regionRanges = mapOf(
         "Kanto" to 1..151,
@@ -97,25 +94,50 @@ class PokemonesRegion : ComponentActivity() {
         enableEdgeToEdge()
 
         val regionId = intent.getIntExtra("REGION_ID", 0)
-        val regionName = regions.find { it.url.split("/").last().toInt() == regionId }?.name ?: "Desconocida"
+        val regionName =
+            regions.find { it.url.split("/").last().toInt() == regionId }?.name ?: "Desconocida"
 
         setContent {
             WindowCompat.setDecorFitsSystemWindows(window, false)
             window.statusBarColor = PokedexColors.DarkGray.toArgb()
-            WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
+            WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars =
+                false
             window.navigationBarColor = Color.Transparent.toArgb()
-            WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightNavigationBars = true
+            WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightNavigationBars =
+                true
 
             PokedexTheme {
                 val regionPokemonList = remember { mutableStateOf<List<PokemonEntry>>(emptyList()) }
-                val filteredPokemonList = remember { mutableStateOf<List<PokemonEntry>>(emptyList()) }
-                val types = remember { mutableStateOf(listOf(
-                    "Todos","normal", "fighting", "flying", "poison", "ground", "rock", "bug", "ghost", "steel", "fire", "water", "grass", "electric",
-                    "psychic", "ice", "dragon", "dark", "fairy")) }
+                val filteredPokemonList =
+                    remember { mutableStateOf<List<PokemonEntry>>(emptyList()) }
+                val types = remember {
+                    mutableStateOf(
+                        listOf(
+                            "Todos",
+                            "normal",
+                            "fighting",
+                            "flying",
+                            "poison",
+                            "ground",
+                            "rock",
+                            "bug",
+                            "ghost",
+                            "steel",
+                            "fire",
+                            "water",
+                            "grass",
+                            "electric",
+                            "psychic",
+                            "ice",
+                            "dragon",
+                            "dark",
+                            "fairy"
+                        )
+                    )
+                }
                 val selectedType = remember { mutableStateOf(types.value.first()) }
                 val searchQuery = remember { mutableStateOf("") }
 
-                // Cargar datos
                 driverAdapter.PokemonsByRegion(
                     region = regionId.toString().lowercase(),
                     loadData = {
@@ -145,7 +167,8 @@ class PokemonesRegion : ComponentActivity() {
                             type = type,
                             loadData = { typePokemonList ->
                                 val filtered = regionPokemonList.value.filter { regionPokemon ->
-                                    val pokemonNumber = extractPokemonNumber(regionPokemon.pokemon_species.url)
+                                    val pokemonNumber =
+                                        extractPokemonNumber(regionPokemon.pokemon_species.url)
                                     typePokemonList.any { it.entry_number == pokemonNumber }
                                 }
                                 filteredPokemonList.value = filtered
@@ -208,7 +231,6 @@ class PokemonesRegion : ComponentActivity() {
                             )
                         }
 
-                        // Row para TypeSelector y SearchBar
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -247,7 +269,8 @@ class PokemonesRegion : ComponentActivity() {
                                 PokemonCard(
                                     pokemon = pokemon,
                                     onClick = {
-                                        val intent = Intent(this@PokemonesRegion, InfoPokemon::class.java)
+                                        val intent =
+                                            Intent(this@PokemonesRegion, InfoPokemon::class.java)
                                         intent.putExtra(
                                             "POKEMON_ID",
                                             extractPokemonNumber(pokemon.pokemon_species.url).toString()
@@ -287,7 +310,11 @@ class PokemonesRegion : ComponentActivity() {
                     )
                 }
                 AsyncImage(
-                    model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${extractPokemonNumber(pokemon.pokemon_species.url)}.png",
+                    model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${
+                        extractPokemonNumber(
+                            pokemon.pokemon_species.url
+                        )
+                    }.png",
                     contentDescription = "Imagen del Pokémon",
                     modifier = Modifier.size(64.dp)
                 )
@@ -345,73 +372,6 @@ class PokemonesRegion : ComponentActivity() {
         }
     }
 
-
-    @Composable
-    fun PokemonList(
-        pokemonEntries: List<PokemonEntry>,
-        modifier: Modifier = Modifier,
-        onClickPokemon: (String) -> Unit = {}
-    ) {
-        if (pokemonEntries.isEmpty()) {
-            Text(text = "No hay Pokémon disponibles en esta región.")
-            return
-        } else {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2), // Dos columnas
-                modifier = modifier
-                    .fillMaxSize()
-                    .padding(8.dp), // Espaciado general
-                horizontalArrangement = Arrangement.spacedBy(8.dp), // Espaciado horizontal entre columnas
-                verticalArrangement = Arrangement.spacedBy(8.dp) // Espaciado vertical entre filas
-            ) {
-                items(
-                    items = pokemonEntries,
-                    key = { it.entry_number }
-                ) { pokemon ->
-                    androidx.compose.material3.Card(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color.LightGray, // Color del fondo de la carta
-                            contentColor = Color.Black
-                        )
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            Row {
-                                val pokemonNumber = extractPokemonNumber(pokemon.pokemon_species.url)
-                                Text(text = "ID: $pokemonNumber ")
-                            }
-                            Row {
-                                Text(text = "Nombre: ${pokemon.pokemon_species.name.replaceFirstChar { it.uppercase() }}")
-                            }
-                            Row {
-                                val pokemonEntryNumber = extractPokemonNumber(pokemon.pokemon_species.url)
-                                AsyncImage(
-                                    model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonEntryNumber}.png",
-                                    contentDescription = "Imagen del Pokémon",
-                                    modifier = Modifier.size(100.dp) // Tamaño de la imagen
-                                )
-                            }
-                            Button(
-                                onClick = {
-                                    val pokemonNumber = extractPokemonNumber(pokemon.pokemon_species.url)
-                                    onClickPokemon(pokemonNumber.toString())
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(text = "Ver detalles")
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
     @Composable
     fun TopBarWithBackButton(
         title: String,
@@ -456,21 +416,7 @@ class PokemonesRegion : ComponentActivity() {
     }
 
 
-
-
     private fun extractPokemonNumber(url: String): Int {
         return url.trimEnd('/').split('/').last().toInt()
-    }
-
-    @Preview(showBackground = true)
-    @Composable
-    fun GreetingPreview2() {
-        PokedexTheme {
-            TypeSelector(types = listOf("fire", "water", "grass"), onTypeSelected = {})
-            PokemonList(
-                pokemonEntries = emptyList(),
-                modifier = Modifier.padding(16.dp)
-            )
-        }
     }
 }
